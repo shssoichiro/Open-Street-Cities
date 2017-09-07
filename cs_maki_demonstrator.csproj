@@ -42,6 +42,9 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>..\..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities.app\Contents\Resources\Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>..\..\..\..\..\Steam\steamapps\common\Cities_Skylines\Cities.app\Contents\Resources\Data\Managed\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -53,7 +56,6 @@
     <Compile Include="Source\Contours\Conrec.cs" />
     <Compile Include="Source\Curves\CurveFitting.cs" />
     <Compile Include="Source\Curves\Douglas.cs" />
-    <Compile Include="Source\OSM\OSMExport.cs" />
     <Compile Include="Source\OSM\OSMInterface.cs" />
     <Compile Include="Source\OSM\osm.cs" />
     <Compile Include="Source\Panels\MapperWindow.cs" />

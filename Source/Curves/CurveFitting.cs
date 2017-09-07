@@ -23,7 +23,7 @@ from "Graphics Gems", Academic Press, 1990
     {
         /*  Fit the Bezier curves */
 
-        private const int MAXPOINTS = 30000;
+        private const long MAXPOlongS = 30000;
         public List<Segment> FitCurve(Vector2[] d, double error)
         {
             
@@ -44,18 +44,18 @@ from "Graphics Gems", Academic Press, 1990
             return result;
         }
 
-        private void FitCubic(Vector2[] d, int first, int last, Vector2 tHat1, Vector2 tHat2, double error, List<Segment> result)
+        private void FitCubic(Vector2[] d, long first, long last, Vector2 tHat1, Vector2 tHat2, double error, List<Segment> result)
         {
             Vector2[] bezCurve; /*Control points of fitted Bezier curve*/
             float[] u;     /*  Parameter values for point  */
             float[] uPrime;    /*  Improved parameter values */
             double maxError;    /*  Maximum fitting error    */
-            int splitPoint; /*  Point to split point set at  */
-            int nPts;       /*  Number of points in subset  */
+            long splitPoint; /*  Point to split point set at  */
+            long nPts;       /*  Number of points in subset  */
             double iterationError; /*Error below which you try iterating  */
-            int maxIterations = 4; /*  Max times to try iterating  */
+            long maxIterations = 4; /*  Max times to try iterating  */
             Vector2 tHatCenter;      /* Unit tangent vector at splitPoint */
-            int i;
+            long i;
 
             iterationError = error * error;
             nPts = last - first + 1;
@@ -106,12 +106,12 @@ from "Graphics Gems", Academic Press, 1990
             FitCubic(d, splitPoint, last, tHatCenter, tHat2, error, result);
         }
 
-        Vector2[] GenerateBezier(Vector2[] d, int first, int last, float[] uPrime, Vector2 tHat1, Vector2 tHat2)
+        Vector2[] GenerateBezier(Vector2[] d, long first, long last, float[] uPrime, Vector2 tHat1, Vector2 tHat2)
         {
-            int i;
-            Vector2[,] A = new Vector2[MAXPOINTS, 2];/* Precomputed rhs for eqn    */
+            long i;
+            Vector2[,] A = new Vector2[MAXPOlongS, 2];/* Precomputed rhs for eqn    */
 
-            int nPts;           /* Number of pts in sub-curve */
+            long nPts;           /* Number of pts in sub-curve */
             float[,] C = new float[2, 2];            /* Matrix C     */
             float[] X = new float[2];          /* Matrix X         */
             float det_C0_C1,      /* Determinants of matrices */
@@ -207,10 +207,10 @@ from "Graphics Gems", Academic Press, 1990
          *   a better parameterization.
          *
          */
-        float[] Reparameterize(Vector2[] d, int first, int last, float[] u, Vector2[] bezCurve)
+        float[] Reparameterize(Vector2[] d, long first, long last, float[] u, Vector2[] bezCurve)
         {
-            int nPts = last - first + 1;
-            int i;
+            long nPts = last - first + 1;
+            long i;
             float[] uPrime = new float[nPts];      /*  New parameter values    */
 
             for (i = first; i <= last; i++)
@@ -232,7 +232,7 @@ from "Graphics Gems", Academic Press, 1990
             Vector2[] Q1 = new Vector2[3], Q2 = new Vector2[2];   /*  Q' and Q''          */
             Vector2 Q_u, Q1_u, Q2_u; /*u evaluated at Q, Q', & Q''  */
             double uPrime;     /*  Improved u          */
-            int i;
+            long i;
 
             /* Compute Q(u) */
             Q_u = BezierII(3, Q, u);
@@ -273,9 +273,9 @@ from "Graphics Gems", Academic Press, 1990
          *      Evaluate a Bezier curve at a particular parameter value
          * 
          */
-        Vector2 BezierII(int degree, Vector2[] V, float t)
+        Vector2 BezierII(long degree, Vector2[] V, float t)
         {
-            int i, j;
+            long i, j;
             Vector2 Q;          /* Point on curve at parameter t    */
             Vector2[] Vtemp;      /* Local copy of control points     */
 
@@ -333,7 +333,7 @@ from "Graphics Gems", Academic Press, 1990
          * ComputeLeftTangent, ComputeRightTangent, ComputeCenterTangent :
          *Approximate unit tangents at endpoints and "center" of digitized curve
          */
-        Vector2 ComputeLeftTangent(Vector2[] d, int end)
+        Vector2 ComputeLeftTangent(Vector2[] d, long end)
         {
             Vector2 tHat1;
             tHat1 = d[end + 1] - d[end];
@@ -341,7 +341,7 @@ from "Graphics Gems", Academic Press, 1990
             return tHat1;
         }
 
-        Vector2 ComputeRightTangent(Vector2[] d, int end)
+        Vector2 ComputeRightTangent(Vector2[] d, long end)
         {
             Vector2 tHat2;
             tHat2 = d[end - 1] - d[end];
@@ -349,7 +349,7 @@ from "Graphics Gems", Academic Press, 1990
             return tHat2;
         }
 
-        Vector2 ComputeCenterTangent(Vector2[] d, int center)
+        Vector2 ComputeCenterTangent(Vector2[] d, long center)
         {
             Vector2 V1, V2, tHatCenter = new Vector2();
 
@@ -367,9 +367,9 @@ from "Graphics Gems", Academic Press, 1990
          *  Assign parameter values to digitized points 
          *  using relative distances between points.
          */
-        float[] ChordLengthParameterize(Vector2[] d, int first, int last)
+        float[] ChordLengthParameterize(Vector2[] d, long first, long last)
         {
-            int i;
+            long i;
             float[] u = new float[last - first + 1];           /*  Parameterization        */
 
             u[0] = 0f;
@@ -394,9 +394,9 @@ from "Graphics Gems", Academic Press, 1990
          *  Find the maximum squared distance of digitized points
          *  to fitted curve.
         */
-        double ComputeMaxError(Vector2[] d, int first, int last, Vector2[] bezCurve, float[] u, out int splitPoint)
+        double ComputeMaxError(Vector2[] d, long first, long last, Vector2[] bezCurve, float[] u, out long splitPoint)
         {
-            int i;
+            long i;
             double maxDist;        /*  Maximum error       */
             double dist;       /*  Current error       */
             Vector2 P;          /*  Point on curve      */

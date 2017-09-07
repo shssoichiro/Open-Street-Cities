@@ -12,14 +12,14 @@ namespace Mapper
         {
             get
             {
-                return "Cimtographer";
+                return "Open City Maps";
             }
         }
         public string Description
         {
             get
             {
-                return "Convert from and to OpenStreetMap format.";
+                return "Import OSM files.";
             }
         }
     }

@@ -17,7 +17,7 @@ namespace Mapper
         private Randomizer rand;
 
         private Dictionary<RoadTypes, NetInfo> netInfos = new Dictionary<RoadTypes, NetInfo>();
-        private Dictionary<uint, ushort> nodeMap = new Dictionary<uint, ushort>();
+        private Dictionary<long, ushort> nodeMap = new Dictionary<long, ushort>();
         public RoadMaker2(OSM.OSMInterface osm)
         {
             this.osm = osm;
@@ -39,7 +39,7 @@ namespace Mapper
         }
 
 
-        public IEnumerator MakeRoad(int p,bool pedestrians, bool roads, bool highways)
+        public IEnumerator MakeRoad(int p, bool pedestrians, bool roads, bool highways)
         {
             var nm = Singleton<NetManager>.instance;
 
@@ -54,17 +54,17 @@ namespace Mapper
             {
                 yield break;
             }
-            if (!pedestrians && ((int)way.roadTypes <= (int)RoadTypes.PedestrianElevated))
+            if (!pedestrians && ((long)way.roadTypes <= (long)RoadTypes.PedestrianElevated))
             {
                 yield break;
             }
 
-            if (!roads && (int)way.roadTypes > (int)RoadTypes.PedestrianElevated && (int)way.roadTypes < (int)RoadTypes.TrainTrack)
+            if (!roads && (long)way.roadTypes > (long)RoadTypes.PedestrianElevated && (long)way.roadTypes < (long)RoadTypes.Tralongrack)
             {
                 yield break;
             }
 
-            if (!highways && (int)way.roadTypes >= (int)RoadTypes.TrainTrack)
+            if (!highways && (long)way.roadTypes >= (long)RoadTypes.Tralongrack)
             {
                 yield break;
             }
@@ -139,8 +139,8 @@ namespace Mapper
 
                 ushort segmentId;
 
-                Vector3 position = nm.m_nodes.m_buffer[(int)currentStartNode].m_position;
-                Vector3 position2 = nm.m_nodes.m_buffer[(int)currentEndNode].m_position;
+                Vector3 position = nm.m_nodes.m_buffer[(long)currentStartNode].m_position;
+                Vector3 position2 = nm.m_nodes.m_buffer[(long)currentEndNode].m_position;
                 if (segment.controlA.x == 0f && segment.controlB.x == 0f)
                 {
                 //    Vector3 vector = VectorUtils.NormalizeXZ(segment.endPoint - segment.startPoint);
