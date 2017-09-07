@@ -1,9 +1,14 @@
 ﻿using Mapper.Curves;
+using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
-using System.Xml;
+using System.Net;
+using System.Text;
 using System.Xml.Serialization;
 using UnityEngine;
+using Mapper.OSM;
 
 namespace Mapper.OSM
 {
@@ -18,21 +23,43 @@ namespace Mapper.OSM
         double tolerance = 10;
         double curveError = 5;
 
+        public OSMInterface(osmBounds bounds, double scale, double tolerance, double curveTolerance, double tiles)
+        {
+            this.tolerance = tolerance;
+            this.curveError = curveTolerance;
+
+            mapping = new RoadMapping(tiles);
+            fc = new FitCurves();
+
+            var client = new WebClient();
+            var response = client.DownloadData("http://www.overpass-api.de/api/xapi?map?bbox=" + string.Format("{0},{1},{2},{3}", bounds.minlon.ToString(), bounds.minlat.ToString(), bounds.maxlon.ToString(), bounds.maxlat.ToString()));
+            var ms = new MemoryStream(response);
+            var reader = new StreamReader(ms);
+
+            var serializer = new XmlSerializer(typeof(osm));
+            var osm = (osm)serializer.Deserialize(reader);
+            ms.Dispose();
+            reader.Dispose();
+            osm.bounds = bounds;
+
+            Init(osm, scale);
+        }
+
         public OSMInterface(string path, double scale, double tolerance, double curveTolerance, double tiles)
         {
             this.tolerance = tolerance;
             this.curveError = curveTolerance;
 
             mapping = new RoadMapping(tiles);
-			fc = new FitCurves();
+            fc = new FitCurves();
 
-			var serializer = new XmlSerializer(typeof(osm));
+            var serializer = new XmlSerializer(typeof(osm));
+            var reader = new StreamReader(path);
 
-			using (XmlReader reader = XmlReader.Create(path))
-			{
-				var osm = (osm) serializer.Deserialize(reader);
-                Init(osm, scale);
-			}
+            var osm = (osm)serializer.Deserialize(reader);
+            reader.Dispose();
+
+            Init(osm, scale);
         }
 
         private void Init(osm osm,double scale)
@@ -55,10 +82,11 @@ namespace Mapper.OSM
             {
                 RoadTypes rt = RoadTypes.None;
                 List<long> points = null;
-                long layer = 0;
+                int layer = 0;
 
                 if (mapping.Mapped(way, ref points, ref rt, ref layer))
                 {
+                    Vector2 previousPoint = Vector2.zero;
                     var currentList = new List<long>();
                     for (var i = 0; i < points.Count; i += 1)
                     {
@@ -66,6 +94,7 @@ namespace Mapper.OSM
                         if (nodes.ContainsKey(pp))
                         {
                             currentList.Add(pp);
+                            previousPoint = nodes[pp];
                         }
                         else
                         {
@@ -132,7 +161,7 @@ namespace Mapper.OSM
                 {
                     length += (nodes[way.nodes[i + 1]] - nodes[way.nodes[i]]).magnitude;
                 }
-                long segments = Mathf.FloorToInt(length / 100f) + 1;
+                int segments = Mathf.FloorToInt(length / 100f) + 1;
                 float averageLength = length / (float)segments;
                 if (segments <= 1)
                 {
@@ -168,7 +197,7 @@ namespace Mapper.OSM
             var index = ways.Find(way);
             for (var i = 0; i < splits.Count(); i += 1)
             {
-                int nextIndex = way.nodes.Count() - 1;
+                var nextIndex = way.nodes.Count() - 1;
                 if (i != splits.Count - 1)
                 {
                     nextIndex = splits[i + 1];
@@ -182,24 +211,24 @@ namespace Mapper.OSM
 
         private void SimplifyWays()
         {
-			foreach (var way in ways)
-			{
-				var points = new List<Vector2>();
-				foreach (var pp in way.nodes)
-				{
-					points.Add(nodes[pp]);
-				}
+            foreach (var way in ways)
+            {
+                var points = new List<Vector2>();
+                foreach (var pp in way.nodes)
+                {
+                    points.Add(nodes[pp]);
+                }
 
-				List<Vector2> simplified;
-				simplified = Douglas.DouglasPeuckerReduction(points, tolerance);
-				if (simplified != null && simplified.Count > 1)
-				{
-					way.Update(fc.FitCurve(simplified.ToArray(), curveError));
-				}
-				else
-				{
-				}
-			}
+                List<Vector2> simplified;
+                simplified = Douglas.DouglasPeuckerReduction(points, tolerance);
+                if (simplified != null && simplified.Count > 1)
+                {
+                    way.Update(fc.FitCurve(simplified.ToArray(), curveError));
+                }
+                else
+                {
+                }
+            }
 
             var newList = new LinkedList<Way>();
             foreach (var way in ways)

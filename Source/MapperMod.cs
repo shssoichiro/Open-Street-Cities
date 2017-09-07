@@ -19,7 +19,7 @@ namespace Mapper
         {
             get
             {
-                return "Import OSM files.";
+                return "Import Cities from Open Street Map";
             }
         }
     }

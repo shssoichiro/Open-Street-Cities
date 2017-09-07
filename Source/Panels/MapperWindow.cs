@@ -1,10 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using ColossalFramework;
+using ColossalFramework.Math;
 using ColossalFramework.UI;
-using ColossalFramework.Plugins;
+using System.Reflection;
+using System.Timers;
 using UnityEngine;
 using System.IO;
+using System.Net;
+using ColossalFramework.Importers;
+using System.Collections;
 using Mapper.OSM;
 
 namespace Mapper
@@ -17,14 +24,7 @@ namespace Mapper
         UILabel pathTextBoxLabel;
         UIButton loadMapButton;
 
-        UIButton pedestriansCheck;
-        UILabel pedestrianLabel;
-
-        UIButton roadsCheck;
-        UILabel roadsLabel;
-
-        UIButton highwaysCheck;
-        UILabel highwaysLabel;
+        UILabel informationLabel;
 
         UITextField scaleTextBox;
         UILabel scaleTextBoxLabel;
@@ -45,10 +45,7 @@ namespace Mapper
         public ICities.LoadMode mode;
         RoadMaker2 roadMaker;
         bool createRoads;
-        int currentIndex;
-         bool peds = true;
-         bool roads = true;
-         bool highways = true;
+        int currentIndex = 0;
 
         public override void Awake()
         {
@@ -63,15 +60,11 @@ namespace Mapper
             pathTextBoxLabel = AddUIComponent<UILabel>();
             loadMapButton = AddUIComponent<UIButton>();
 
-            pedestriansCheck = AddUIComponent<UIButton>();
-            pedestrianLabel = AddUIComponent<UILabel>();
-            roadsCheck = AddUIComponent<UIButton>();
-            roadsLabel = AddUIComponent<UILabel>();
-            highwaysCheck = AddUIComponent<UIButton>();
-            highwaysLabel = AddUIComponent<UILabel>();
+            informationLabel = AddUIComponent<UILabel>();
 
             scaleTextBox = AddUIComponent<UITextField>();
             scaleTextBoxLabel = AddUIComponent<UILabel>();
+
 
             tolerance = AddUIComponent<UITextField>();
             toleranceLabel = AddUIComponent<UILabel>();
@@ -89,7 +82,6 @@ namespace Mapper
             base.Awake();
 
         }
-
         public override void Start()
         {
             base.Start();
@@ -112,18 +104,6 @@ namespace Mapper
             var vertPadding = 30;
             var x = 15;
             var y = 50;
-
-            SetLabel(pedestrianLabel, "Pedestrian Paths", x, y);
-            SetButton(pedestriansCheck, "True", x + 114, y);
-            pedestriansCheck.eventClick +=PedestriansCheck_eventClick;
-            x += 190;
-            SetLabel(roadsLabel, "Roads", x, y);
-            SetButton(roadsCheck, "True", x + 80, y);
-            roadsCheck.eventClick += RoadsCheck_eventClick;
-            x += 140;
-            SetLabel(highwaysLabel, "Highways", x, y);
-            SetButton(highwaysCheck, "True", x + 80, y);
-            highwaysCheck.eventClick += HighwaysCheck_eventClick;
 
             x = 15;
             y += vertPadding;
@@ -149,7 +129,7 @@ namespace Mapper
             SetTextBox(pathTextBox, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "map"), x + 120, y);
             y += vertPadding - 5;
             SetButton(loadMapButton, "Load OSM From File", y);
-            loadMapButton.eventClick += LoadMapButton_eventClick;
+            loadMapButton.eventClick += loadMapButton_eventClick;
             y += vertPadding + 5;
 
             SetLabel(errorLabel, "No OSM data loaded.", x, y);
@@ -157,33 +137,15 @@ namespace Mapper
             y += vertPadding + 12;
 
             SetButton(okButton, "Make Roads", y);
-            okButton.eventClick += OkButton_eventClick;
+            okButton.eventClick += okButton_eventClick;
             okButton.Disable();
             y += vertPadding;
 
+
             height = y + vertPadding + 6;
-
         }
 
-        private void HighwaysCheck_eventClick(UIComponent component, UIMouseEventParameter eventParam)
-        {
-            highways = !highways;
-            highwaysCheck.text = highways.ToString();
-        }
-
-        private void RoadsCheck_eventClick(UIComponent component, UIMouseEventParameter eventParam)
-        {
-            roads = !roads;
-            roadsCheck.text = roads.ToString();
-        }
-
-        private void PedestriansCheck_eventClick(UIComponent component, UIMouseEventParameter eventParam)
-        {
-            peds = !peds;
-            pedestriansCheck.text = peds.ToString();
-        }
-
-        private void LoadMapButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        private void loadMapButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             var path = pathTextBox.text.Trim();
             if (!File.Exists(path))
@@ -206,13 +168,11 @@ namespace Mapper
             }
             catch (Exception ex)
             {
-
                 errorLabel.text = ex.ToString();
-				DebugOutputPanel.AddMessage(PluginManager.MessageType.Error, ex.StackTrace);
             }
         }
 
-        private void SetButton(UIButton okButton, string p1,long x, long y)
+        private void SetButton(UIButton okButton, string p1,int x, int y)
         {
             okButton.text = p1;
             okButton.normalBgSprite = "ButtonMenu";
@@ -225,7 +185,7 @@ namespace Mapper
             okButton.textScale = 0.8f;
         }
 
-        private void SetButton(UIButton okButton, string p1, long y)
+        private void SetButton(UIButton okButton, string p1, int y)
         {
             okButton.text = p1;
             okButton.normalBgSprite = "ButtonMenu";
@@ -234,12 +194,12 @@ namespace Mapper
             okButton.focusedBgSprite = "ButtonMenuFocused";
             okButton.pressedBgSprite = "ButtonMenuPressed";
             okButton.size = new Vector2(260, 24);
-            okButton.relativePosition = new Vector3((long)(width - okButton.size.x) / 2,y);
+            okButton.relativePosition = new Vector3((int)(width - okButton.size.x) / 2,y);
             okButton.textScale = 0.8f;
 
         }
 
-        private void SetCheckBox(UICustomCheckbox3 pedestriansCheck, long x, long y)
+        private void SetCheckBox(UICustomCheckbox3 pedestriansCheck, int x, int y)
         {
 
             pedestriansCheck.IsChecked = true;
@@ -255,7 +215,7 @@ namespace Mapper
             };
         }
 
-        private void SetTextBox(UITextField scaleTextBox, string p, long x, long y)
+        private void SetTextBox(UITextField scaleTextBox, string p, int x, int y)
         {
             scaleTextBox.relativePosition = new Vector3(x, y - 4);
             scaleTextBox.horizontalAlignment = UIHorizontalAlignment.Left;
@@ -280,7 +240,7 @@ namespace Mapper
             
         }
 
-        private void SetLabel(UILabel pedestrianLabel, string p, long x, long y)
+        private void SetLabel(UILabel pedestrianLabel, string p, int x, int y)
         {
             pedestrianLabel.relativePosition = new Vector3(x, y);
             pedestrianLabel.text = p;
@@ -288,7 +248,7 @@ namespace Mapper
             pedestrianLabel.size = new Vector3(120,20);
         }
 
-        private void OkButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        private void okButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             if (roadMaker != null)
             {
@@ -300,27 +260,11 @@ namespace Mapper
         {
             if (createRoads)
             {
-                var pp = peds;
-                var rr = roads;
-                var hh = highways;                
-                if (currentIndex < roadMaker.osm.ways.Count())
-                {
-                    //roadMaker.MakeRoad(currentIndex);
-                    SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex,pp,rr,hh));
-                    currentIndex += 1;
-                }
 
                 if (currentIndex < roadMaker.osm.ways.Count())
                 {
                     //roadMaker.MakeRoad(currentIndex);
-                    SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex, pp, rr, hh));
-                    currentIndex += 1;
-                }
-
-                if (currentIndex < roadMaker.osm.ways.Count())
-                {
-                    //roadMaker.MakeRoad(currentIndex);
-                    SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex, pp, rr, hh));
+                    SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex));
                     currentIndex += 1;
                     var instance = Singleton<NetManager>.instance;
                     errorLabel.text = String.Format("Making road {0} out of {1}. Nodes: {2}. Segments: {3}", currentIndex, roadMaker.osm.ways.Count(), instance.m_nodeCount, instance.m_segmentCount);

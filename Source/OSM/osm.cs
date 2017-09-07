@@ -161,7 +161,7 @@ namespace Mapper.OSM
 		private System.DateTime osm_baseField;
 
 		/// <remarks/>
-		[System.Xml.Serialization.XmlAttributeAttribute("meta")]
+		[System.Xml.Serialization.XmlAttributeAttribute()]
 		public System.DateTime osm_base
 		{
 			get
@@ -258,13 +258,13 @@ namespace Mapper.OSM
 
 		private decimal lonField;
 
-		private long versionField;
+		private int versionField;
 
 		private System.DateTime timestampField;
 
-		private long changesetField;
+		private uint changesetField;
 
-		private long uidField;
+		private uint uidField;
 
 		private string userField;
 
@@ -283,7 +283,7 @@ namespace Mapper.OSM
 		}
 
 		/// <remarks/>
-		[System.Xml.Serialization.XmlElementAttribute()]
+		[System.Xml.Serialization.XmlAttributeAttribute()]
 		public long id
 		{
 			get
@@ -326,7 +326,7 @@ namespace Mapper.OSM
 
 		/// <remarks/>
 		[System.Xml.Serialization.XmlAttributeAttribute()]
-		public long version
+		public int version
 		{
 			get
 			{
@@ -354,7 +354,7 @@ namespace Mapper.OSM
 
 		/// <remarks/>
 		[System.Xml.Serialization.XmlAttributeAttribute()]
-		public long changeset
+		public uint changeset
 		{
 			get
 			{
@@ -368,7 +368,7 @@ namespace Mapper.OSM
 
 		/// <remarks/>
 		[System.Xml.Serialization.XmlAttributeAttribute()]
-		public long uid
+		public uint uid
 		{
 			get
 			{
@@ -442,15 +442,15 @@ namespace Mapper.OSM
 
 		private osmWayTag[] tagField;
 
-		private long idField;
+		private uint idField;
 
-		private long versionField;
+		private int versionField;
 
 		private System.DateTime timestampField;
 
-		private long changesetField;
+		private uint changesetField;
 
-		private long uidField;
+		private uint uidField;
 
 		private string userField;
 
@@ -484,7 +484,7 @@ namespace Mapper.OSM
 
 		/// <remarks/>
 		[System.Xml.Serialization.XmlAttributeAttribute()]
-		public long id
+		public uint id
 		{
 			get
 			{
@@ -498,7 +498,7 @@ namespace Mapper.OSM
 
 		/// <remarks/>
 		[System.Xml.Serialization.XmlAttributeAttribute()]
-		public long version
+		public int version
 		{
 			get
 			{
@@ -526,7 +526,7 @@ namespace Mapper.OSM
 
 		/// <remarks/>
 		[System.Xml.Serialization.XmlAttributeAttribute()]
-		public long changeset
+		public uint changeset
 		{
 			get
 			{
@@ -540,7 +540,7 @@ namespace Mapper.OSM
 
 		/// <remarks/>
 		[System.Xml.Serialization.XmlAttributeAttribute()]
-		public long uid
+		public uint uid
 		{
 			get
 			{
@@ -636,15 +636,15 @@ namespace Mapper.OSM
 
 		private osmRelationTag[] tagField;
 
-		private long idField;
+		private uint idField;
 
-		private long versionField;
+		private int versionField;
 
 		private System.DateTime timestampField;
 
-		private long changesetField;
+		private uint changesetField;
 
-		private long uidField;
+		private uint uidField;
 
 		private string userField;
 
@@ -678,7 +678,7 @@ namespace Mapper.OSM
 
 		/// <remarks/>
 		[System.Xml.Serialization.XmlAttributeAttribute()]
-		public long id
+		public uint id
 		{
 			get
 			{
@@ -692,7 +692,7 @@ namespace Mapper.OSM
 
 		/// <remarks/>
 		[System.Xml.Serialization.XmlAttributeAttribute()]
-		public long version
+		public int version
 		{
 			get
 			{
@@ -720,7 +720,7 @@ namespace Mapper.OSM
 
 		/// <remarks/>
 		[System.Xml.Serialization.XmlAttributeAttribute()]
-		public long changeset
+		public uint changeset
 		{
 			get
 			{
@@ -734,7 +734,7 @@ namespace Mapper.OSM
 
 		/// <remarks/>
 		[System.Xml.Serialization.XmlAttributeAttribute()]
-		public long uid
+		public uint uid
 		{
 			get
 			{

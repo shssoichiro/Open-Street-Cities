@@ -26,11 +26,11 @@ namespace Mapper.Contours
     /// applications are displaying topological features of an area on a map or the air 
     /// pressure on a weather map. In all cases some parameter is plotted as a function 
     /// of two variables, the longitude and latitude or x and y axis. One problem with 
-    /// computer contouring is the process is usually CPU longensive and the algorithms 
+    /// computer contouring is the process is usually CPU intensive and the algorithms 
     /// often use advanced mathematical techniques making them susceptible to error.
     /// </para>
     /// </remarks>
-    public static class Conrec
+    public class Conrec
     {
         /// <summary>
         /// Renderer delegate
@@ -76,7 +76,7 @@ namespace Mapper.Contours
         /// <param name="renderer">
         /// The renderer.
         /// </param>
-        public static void Contour(double[,] d, double[] x, double[] y, double[] z, Dictionary<Vector2, List<Vector2>>[] result)
+        public static void Contour(double[,] d, double[] x, double[] y, double[] z, Dictionary<Vector2,List<Vector2>>[] result)
         {
             double x1 = 0.0;
             double x2 = 0.0;
@@ -84,35 +84,35 @@ namespace Mapper.Contours
             double y2 = 0.0;
 
             var h = new double[5];
-            var sh = new long[5];
+            var sh = new int[5];
             var xh = new double[5];
             var yh = new double[5];
 
-            long ilb = d.GetLowerBound(0);
-            long iub = d.GetUpperBound(0);
-            long jlb = d.GetLowerBound(1);
-            long jub = d.GetUpperBound(1);
-            long nc = z.Length;
+            int ilb = d.GetLowerBound(0);
+            int iub = d.GetUpperBound(0);
+            int jlb = d.GetLowerBound(1);
+            int jub = d.GetUpperBound(1);
+            int nc = z.Length;
 
             // The indexing of im and jm should be noted as it has to start from zero
             // unlike the fortran counter part
-            long[] im = { 0, 1, 1, 0 };
-            long[] jm = { 0, 0, 1, 1 };
+            int[] im = { 0, 1, 1, 0 };
+            int[] jm = { 0, 0, 1, 1 };
 
             // Note that castab is arranged differently from the FORTRAN code because
             // Fortran and C/C++ arrays are transposed of each other, in this case
             // it is more tricky as castab is in 3 dimension
-            long[,,] castab = {
-                                 { { 0, 0, 8 }, { 0, 2, 5 }, { 7, 6, 9 } }, { { 0, 3, 4 }, { 1, 3, 1 }, { 4, 3, 0 } },
+            int[, ,] castab = {
+                                 { { 0, 0, 8 }, { 0, 2, 5 }, { 7, 6, 9 } }, { { 0, 3, 4 }, { 1, 3, 1 }, { 4, 3, 0 } }, 
                                  { { 9, 6, 7 }, { 5, 2, 0 }, { 8, 0, 0 } }
                              };
 
-            Func<long, long, double> xsect = (p1, p2) => (h[p2] * xh[p1] - h[p1] * xh[p2]) / (h[p2] - h[p1]);
-            Func<long, long, double> ysect = (p1, p2) => (h[p2] * yh[p1] - h[p1] * yh[p2]) / (h[p2] - h[p1]);
+            Func<int, int, double> xsect = (p1, p2) => (h[p2] * xh[p1] - h[p1] * xh[p2]) / (h[p2] - h[p1]);
+            Func<int, int, double> ysect = (p1, p2) => (h[p2] * yh[p1] - h[p1] * yh[p2]) / (h[p2] - h[p1]);
 
-            for (long j = jub - 1; j >= jlb; j--)
+            for (int j = jub - 1; j >= jlb; j--)
             {
-                long i;
+                int i;
                 for (i = ilb; i <= iub - 1; i++)
                 {
                     double temp1 = Math.Min(d[i, j], d[i, j + 1]);
@@ -124,12 +124,12 @@ namespace Mapper.Contours
 
                     if (dmax >= z[0] && dmin <= z[nc - 1])
                     {
-                        long k;
+                        int k;
                         for (k = 0; k < nc; k++)
                         {
                             if (z[k] >= dmin && z[k] <= dmax)
                             {
-                                long m;
+                                int m;
                                 for (m = 4; m >= 0; m--)
                                 {
                                     if (m > 0)
@@ -186,9 +186,9 @@ namespace Mapper.Contours
                                 // Scan each triangle in the box
                                 for (m = 1; m <= 4; m++)
                                 {
-                                    long m1 = m;
-                                    long m2 = 0;
-                                    long m3;
+                                    int m1 = m;
+                                    int m2 = 0;
+                                    int m3;
                                     if (m != 4)
                                     {
                                         m3 = m + 1;
@@ -198,7 +198,7 @@ namespace Mapper.Contours
                                         m3 = 1;
                                     }
 
-                                    long caseValue = castab[sh[m1] + 1, sh[m2] + 1, sh[m3] + 1];
+                                    int caseValue = castab[sh[m1] + 1, sh[m2] + 1, sh[m3] + 1];
                                     if (caseValue != 0)
                                     {
                                         switch (caseValue)
@@ -268,7 +268,7 @@ namespace Mapper.Contours
                                         {
                                             thisLevel.Add(start, new List<Vector2>());
                                         }
-                                        thisLevel[start].Add(end);
+                                        thisLevel[start].Add(end);                                     
                                     }
                                 }
                             }

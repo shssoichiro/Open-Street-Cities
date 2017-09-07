@@ -48,9 +48,9 @@ namespace Mapper
         LargeRoadElevated,
         GravelRoad,
 
-        Tralongrack,
-        TralongrackBridge,
-        TralongrackElevated,
+        TrainTrack,
+        TrainTrackBridge,
+        TrainTrackElevated,
         TrainConnectionTrack,
         Highway,
         HighwayBridge,
@@ -66,8 +66,8 @@ namespace Mapper
 
     public class RoadMapping
     {
-        public const long GameSizeMetres = 18000;
-        public const long GameSizeGameCoordinates = 1920 * 9;
+        public const int GameSizeMetres = 18000;
+        public const int GameSizeGameCoordinates = 1920 * 9;
         double maxBounds;
         private Dictionary<KeyValuePair<string, string>, RoadTypes> roadTypeMapping = new Dictionary<KeyValuePair<string, string>, RoadTypes>();
         private Dictionary<RoadTypes, KeyValuePair<string, string>> reverseMapping = new Dictionary<RoadTypes,KeyValuePair<string, string>>();
@@ -106,16 +106,16 @@ namespace Mapper
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "bridleway"), RoadTypes.PedestrianPavement);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "cycleway"), RoadTypes.PedestrianPavement);
 
-            roadTypeMapping.Add(new KeyValuePair<string, string>("railway", "miniature"), RoadTypes.Tralongrack);
-            roadTypeMapping.Add(new KeyValuePair<string, string>("railway", "monorail"), RoadTypes.Tralongrack);
-            roadTypeMapping.Add(new KeyValuePair<string, string>("railway", "narrow_gauge"), RoadTypes.Tralongrack);
-            roadTypeMapping.Add(new KeyValuePair<string, string>("railway", "preserved"), RoadTypes.Tralongrack);
-            roadTypeMapping.Add(new KeyValuePair<string, string>("railway", "rail"), RoadTypes.Tralongrack);
+            roadTypeMapping.Add(new KeyValuePair<string, string>("railway", "miniature"), RoadTypes.TrainTrack);
+            roadTypeMapping.Add(new KeyValuePair<string, string>("railway", "monorail"), RoadTypes.TrainTrack);
+            roadTypeMapping.Add(new KeyValuePair<string, string>("railway", "narrow_gauge"), RoadTypes.TrainTrack);
+            roadTypeMapping.Add(new KeyValuePair<string, string>("railway", "preserved"), RoadTypes.TrainTrack);
+            roadTypeMapping.Add(new KeyValuePair<string, string>("railway", "rail"), RoadTypes.TrainTrack);
 
             reverseMapping.Add(RoadTypes.TrainConnectionTrack, new KeyValuePair<string, string>("railway", "rail"));
-            reverseMapping.Add(RoadTypes.Tralongrack,new KeyValuePair<string, string>("railway", "rail"));
-            reverseMapping.Add(RoadTypes.TralongrackElevated, new KeyValuePair<string, string>("railway", "rail"));
-            reverseMapping.Add(RoadTypes.TralongrackBridge, new KeyValuePair<string, string>("railway", "rail"));
+            reverseMapping.Add(RoadTypes.TrainTrack,new KeyValuePair<string, string>("railway", "rail"));
+            reverseMapping.Add(RoadTypes.TrainTrackElevated, new KeyValuePair<string, string>("railway", "rail"));
+            reverseMapping.Add(RoadTypes.TrainTrackBridge, new KeyValuePair<string, string>("railway", "rail"));
 
             reverseMapping.Add(RoadTypes.PedestrianPavement, new KeyValuePair<string, string>("highway", "pedestrian"));
             reverseMapping.Add(RoadTypes.PedestrianGravel, new KeyValuePair<string, string>("highway", "pedestrian"));
@@ -190,7 +190,7 @@ namespace Mapper
         }
 
 
-        public bool Mapped(osmWay way, ref List<long> points, ref RoadTypes rt, ref long layer)
+        public bool Mapped(osmWay way, ref List<long> points, ref RoadTypes rt, ref int layer)
         {
             if (way.tag == null || way.nd == null || way.nd.Count() < 2)
             {
@@ -216,7 +216,7 @@ namespace Mapper
                 }
                 else if (tag.k.Trim().ToLower() == "layer")
                 {
-                    long.TryParse(tag.v.Trim(), out layer);
+                    int.TryParse(tag.v.Trim(), out layer);
                 }
                 else if (tag.k.Trim().ToLower() == "surface")
                 {

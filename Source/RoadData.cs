@@ -9,7 +9,7 @@ namespace Mapper
 {
 //    public class ProcessedWay
 //    {
-//        public long layer;
+//        public int layer;
 
 //        public RoadTypes roadTypes;
 
@@ -52,7 +52,7 @@ namespace Mapper
         public List<Segment> segments;
 
         public RoadTypes roadTypes;
-        public long layer;
+        public int layer;
 
         public long startNode
         {
@@ -64,7 +64,7 @@ namespace Mapper
             get { return nodes[nodes.Count()-1]; }
         }
 
-        public Way(List<long> points, RoadTypes rt,long layer)
+        public Way(List<long> points, RoadTypes rt,int layer)
         {
             this.roadTypes = rt;
             this.nodes = points;

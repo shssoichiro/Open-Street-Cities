@@ -12,13 +12,13 @@ namespace Mapper.Curves
          */
         public static class Douglas
         {
-		/// <summary>
-		/// Uses the Douglas Peucker algorithm to reduce the number of points.
-		/// </summary>
-		/// <param name="Points">The points.</param>
-		/// <param name="Tolerance">The tolerance.</param>
-		/// <returns></returns>
-		public static List<Vector2> DouglasPeuckerReduction(List<Vector2> Points, Double Tolerance)
+            /// <summary>
+            /// Uses the Douglas Peucker algorithm to reduce the number of points.
+            /// </summary>
+            /// <param name="Points">The points.</param>
+            /// <param name="Tolerance">The tolerance.</param>
+            /// <returns></returns>
+            public static List<Vector2> DouglasPeuckerReduction(List<Vector2> Points, Double Tolerance)
             {
                 if (Points == null || Points.Count < 3)
                     return Points;
@@ -31,8 +31,8 @@ namespace Mapper.Curves
                 pointIndexsToKeep.Add(firstPoint);
                 pointIndexsToKeep.Add(lastPoint);
 
-			//The first and the last point cannot be the same
-			while (Points[firstPoint].Equals(Points[lastPoint]))
+                //The first and the last point cannot be the same
+                while (Points[firstPoint].Equals(Points[lastPoint]))
                 {
                     lastPoint--;
                     if (lastPoint <= firstPoint)
@@ -41,7 +41,7 @@ namespace Mapper.Curves
                     }
                 }
 
-                DouglasPeuckerReduction(Points, firstPoint, lastPoint, Tolerance, ref pointIndexsToKeep);
+                DouglasPeuckerReduction(Points, firstPoint, lastPoint,Tolerance, ref pointIndexsToKeep);
 
                 List<Vector2> returnPoints = new List<Vector2>();
                 pointIndexsToKeep.Sort();
@@ -53,22 +53,22 @@ namespace Mapper.Curves
                 return returnPoints;
             }
 
-		/// <summary>
-		/// Douglases the peucker reduction.
-		/// </summary>
-		/// <param name="points">The points.</param>
-		/// <param name="firstPoint">The first point.</param>
-		/// <param name="lastPoints">The last point.</param>
-		/// <param name="tolerance">The tolerance.</param>
-		/// <param name="pointIndexsToKeep">The point index to keep.</param>
-		private static void DouglasPeuckerReduction(List<Vector2> points, Int32 firstPoint, Int32 lastPoints, Double tolerance, ref List<Int32> pointIndexsToKeep)
+            /// <summary>
+            /// Douglases the peucker reduction.
+            /// </summary>
+            /// <param name="points">The points.</param>
+            /// <param name="firstPoint">The first point.</param>
+            /// <param name="lastPoint">The last point.</param>
+            /// <param name="tolerance">The tolerance.</param>
+            /// <param name="pointIndexsToKeep">The point index to keep.</param>
+            private static void DouglasPeuckerReduction(List<Vector2> points, Int32 firstPoint, Int32 lastPoint, Double tolerance, ref List<Int32> pointIndexsToKeep)
             {
                 Double maxDistance = 0;
                 Int32 indexFarthest = 0;
 
-                for (Int32 index = firstPoint; index < lastPoints; index++)
+                for (Int32 index = firstPoint; index < lastPoint; index++)
                 {
-                    Double distance = PerpendicularDistance(points[firstPoint], points[lastPoints], points[index]);
+                    Double distance = PerpendicularDistance(points[firstPoint], points[lastPoint], points[index]);
                     if (distance > maxDistance)
                     {
                         maxDistance = distance;
@@ -84,7 +84,7 @@ namespace Mapper.Curves
                     DouglasPeuckerReduction(points, firstPoint,
                     indexFarthest, tolerance, ref pointIndexsToKeep);
                     DouglasPeuckerReduction(points, indexFarthest,
-                    lastPoints, tolerance, ref pointIndexsToKeep);
+                    lastPoint, tolerance, ref pointIndexsToKeep);
                 }
             }
 
