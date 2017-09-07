@@ -15,10 +15,10 @@
 6. Now open the following URL: `http://overpass-api.de/api/map?bbox=YOURNUMBERSHERE`, but replace `YOURNUMBERSHERE` with the reversed latitude and longitude (the above example will be `http://overpass-api.de/api/map?bbox=8.6386,50.7212,8.8949,50.8829`). This will download the Open Street Map file called map.
 7. Now start the game and make sure the Mod is active.
 8. Open the map editor and start a new map.
-9. In the map editor, open the heightd map import and chose one of the four PNGs. Mostly, merged works best.
+9. In the map editor, open the heightd map import and chose one of the four PNGs. Mostly, merged works best. ![Height Map import](/pics/heightmap.png)
 10. After the height map is imported, click on the road button far right.
-11. Provide the path to the downloaded map file and click on `Load OSM From File` (this will take a while, be patient).
-12. After the import is done, click on `Make Roads`. This will take like forever. I recommend to wait additional 10-20 seconds, after the import is done. *You can play around with the Tolerance buttons, sometimes the results will be better.*
+11. Provide the path to the downloaded map file and click on `Load OSM From File` (this will take a while, be patient). ![Import File](/pics/load.png)
+12. After the import is done, click on `Make Roads`. This will take like forever. I recommend to wait additional 10-20 seconds, after the import is done. *You can play around with the Tolerance buttons, sometimes the results will be better.* ![Make Roads](/pics/make.png)
 13. Now, try to fulfill the requirements based on the real region to be able to start the map in a game. This is also the point where you should place all trees and make forests and so on to be as close to real life as possible.d
 14. After you are done, save the map and start a new game with the unlimited money mod enabled.
 15. Finally, before you start the game, fix the broken roads.
