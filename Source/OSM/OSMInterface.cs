@@ -23,28 +23,6 @@ namespace Mapper.OSM
         double tolerance = 10;
         double curveError = 5;
 
-        public OSMInterface(osmBounds bounds, double scale, double tolerance, double curveTolerance, double tiles)
-        {
-            this.tolerance = tolerance;
-            this.curveError = curveTolerance;
-
-            mapping = new RoadMapping(tiles);
-            fc = new FitCurves();
-
-            var client = new WebClient();
-            var response = client.DownloadData("http://www.overpass-api.de/api/xapi?map?bbox=" + string.Format("{0},{1},{2},{3}", bounds.minlon.ToString(), bounds.minlat.ToString(), bounds.maxlon.ToString(), bounds.maxlat.ToString()));
-            var ms = new MemoryStream(response);
-            var reader = new StreamReader(ms);
-
-            var serializer = new XmlSerializer(typeof(osm));
-            var osm = (osm)serializer.Deserialize(reader);
-            ms.Dispose();
-            reader.Dispose();
-            osm.bounds = bounds;
-
-            Init(osm, scale);
-        }
-
         public OSMInterface(string path, double scale, double tolerance, double curveTolerance, double tiles)
         {
             this.tolerance = tolerance;
@@ -63,7 +41,7 @@ namespace Mapper.OSM
         }
 
         private void Init(osm osm,double scale)
-        {
+		{
             mapping.InitBoundingBox(osm.bounds, scale);
 
             foreach (var node in osm.node)
