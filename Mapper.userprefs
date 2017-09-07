@@ -1,0 +1,23 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workbench ActiveDocument="Source/RoadMapping.cs">
+    <Files>
+      <File FileName="Source/Contours/Conrec.cs" Line="12" Column="1" />
+      <File FileName="Source/Curves/CurveFitting.cs" Line="257" Column="17" />
+      <File FileName="Source/Curves/Douglas.cs" Line="94" Column="30" />
+      <File FileName="Source/OSM/osm.cs" Line="1" Column="1" />
+      <File FileName="Source/OSM/OSMInterface.cs" Line="1" Column="21" />
+      <File FileName="Source/Panels/MapperWindow.cs" Line="210" Column="45" />
+      <File FileName="Source/MapperLoading.cs" Line="1" Column="1" />
+      <File FileName="Source/MapperMod.cs" Line="1" Column="15" />
+      <File FileName="Source/RoadMaker.cs" Line="5" Column="34" />
+      <File FileName="Source/RoadData.cs" Line="1" Column="1" />
+      <File FileName="Source/RoadMapping.cs" Line="205" Column="36" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
+</Properties>

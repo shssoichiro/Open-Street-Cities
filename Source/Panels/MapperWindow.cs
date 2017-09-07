@@ -1,17 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using ColossalFramework;
-using ColossalFramework.Math;
 using ColossalFramework.UI;
-using System.Reflection;
-using System.Timers;
 using UnityEngine;
 using System.IO;
-using System.Net;
-using ColossalFramework.Importers;
-using System.Collections;
 using Mapper.OSM;
 
 namespace Mapper
@@ -23,8 +15,6 @@ namespace Mapper
         UITextField pathTextBox;
         UILabel pathTextBoxLabel;
         UIButton loadMapButton;
-
-        UILabel informationLabel;
 
         UITextField scaleTextBox;
         UILabel scaleTextBoxLabel;
@@ -45,7 +35,7 @@ namespace Mapper
         public ICities.LoadMode mode;
         RoadMaker2 roadMaker;
         bool createRoads;
-        int currentIndex = 0;
+        int currentIndex;
 
         public override void Awake()
         {
@@ -59,8 +49,6 @@ namespace Mapper
             pathTextBox = AddUIComponent<UITextField>();
             pathTextBoxLabel = AddUIComponent<UILabel>();
             loadMapButton = AddUIComponent<UIButton>();
-
-            informationLabel = AddUIComponent<UILabel>();
 
             scaleTextBox = AddUIComponent<UITextField>();
             scaleTextBoxLabel = AddUIComponent<UILabel>();
@@ -89,7 +77,6 @@ namespace Mapper
             relativePosition = new Vector3(396, 58);
             backgroundSprite = "MenuPanel2";
             isInteractive = true;
-            //this.CenterToParent();
             SetupControls();
         }
 
@@ -129,7 +116,7 @@ namespace Mapper
             SetTextBox(pathTextBox, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "map"), x + 120, y);
             y += vertPadding - 5;
             SetButton(loadMapButton, "Load OSM From File", y);
-            loadMapButton.eventClick += loadMapButton_eventClick;
+            loadMapButton.eventClick += LoadMapButton_eventClick;
             y += vertPadding + 5;
 
             SetLabel(errorLabel, "No OSM data loaded.", x, y);
@@ -137,7 +124,7 @@ namespace Mapper
             y += vertPadding + 12;
 
             SetButton(okButton, "Make Roads", y);
-            okButton.eventClick += okButton_eventClick;
+            okButton.eventClick += OkButton_eventClick;
             okButton.Disable();
             y += vertPadding;
 
@@ -145,7 +132,7 @@ namespace Mapper
             height = y + vertPadding + 6;
         }
 
-        private void loadMapButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        private void LoadMapButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             var path = pathTextBox.text.Trim();
             if (!File.Exists(path))
@@ -248,7 +235,7 @@ namespace Mapper
             pedestrianLabel.size = new Vector3(120,20);
         }
 
-        private void okButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        private void OkButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             if (roadMaker != null)
             {

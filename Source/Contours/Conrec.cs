@@ -30,7 +30,7 @@ namespace Mapper.Contours
     /// often use advanced mathematical techniques making them susceptible to error.
     /// </para>
     /// </remarks>
-    public class Conrec
+    public static class Conrec
     {
         /// <summary>
         /// Renderer delegate
@@ -76,7 +76,7 @@ namespace Mapper.Contours
         /// <param name="renderer">
         /// The renderer.
         /// </param>
-        public static void Contour(double[,] d, double[] x, double[] y, double[] z, Dictionary<Vector2,List<Vector2>>[] result)
+        public static void Contour(double[,] d, double[] x, double[] y, double[] z, Dictionary<Vector2, List<Vector2>>[] result)
         {
             double x1 = 0.0;
             double x2 = 0.0;
@@ -102,8 +102,8 @@ namespace Mapper.Contours
             // Note that castab is arranged differently from the FORTRAN code because
             // Fortran and C/C++ arrays are transposed of each other, in this case
             // it is more tricky as castab is in 3 dimension
-            int[, ,] castab = {
-                                 { { 0, 0, 8 }, { 0, 2, 5 }, { 7, 6, 9 } }, { { 0, 3, 4 }, { 1, 3, 1 }, { 4, 3, 0 } }, 
+            int[,,] castab = {
+                                 { { 0, 0, 8 }, { 0, 2, 5 }, { 7, 6, 9 } }, { { 0, 3, 4 }, { 1, 3, 1 }, { 4, 3, 0 } },
                                  { { 9, 6, 7 }, { 5, 2, 0 }, { 8, 0, 0 } }
                              };
 
@@ -268,7 +268,7 @@ namespace Mapper.Contours
                                         {
                                             thisLevel.Add(start, new List<Vector2>());
                                         }
-                                        thisLevel[start].Add(end);                                     
+                                        thisLevel[start].Add(end);
                                     }
                                 }
                             }

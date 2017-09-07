@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 using Mapper.OSM;
 
@@ -493,8 +492,10 @@ namespace Mapper
 
             if ((data.m_flags & Building.Flags.CustomName) != Building.Flags.None)
             {
-                var id = new InstanceID();
-                id.Building = buildingId;
+                var id = new InstanceID()
+                {
+                    Building = buildingId
+                };
                 name = Singleton<InstanceManager>.instance.GetName(id);
             }
 

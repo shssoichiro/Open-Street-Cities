@@ -1,8 +1,4 @@
-﻿using ColossalFramework.Math;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 /* Adapted from http://stackoverflow.com/questions/5525665/smoothing-a-hand-drawn-curve */
@@ -50,7 +46,7 @@ from "Graphics Gems", Academic Press, 1990
             float[] u;     /*  Parameter values for point  */
             float[] uPrime;    /*  Improved parameter values */
             double maxError;    /*  Maximum fitting error    */
-            int splitPoint; /*  Point to split point set at  */
+            int splitPoint;
             int nPts;       /*  Number of points in subset  */
             double iterationError; /*Error below which you try iterating  */
             int maxIterations = 4; /*  Max times to try iterating  */

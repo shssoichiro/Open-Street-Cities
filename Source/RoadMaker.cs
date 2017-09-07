@@ -3,10 +3,7 @@ using ColossalFramework.Math;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Xml.Serialization;
 using UnityEngine;
 
 namespace Mapper
@@ -77,35 +74,35 @@ namespace Mapper
                 ni = ni.m_netAI.GetInfo(elevation, elevation, 5f, false, false, false, false, ref errors);
 
             }
-            if (!osm.nodes.ContainsKey(way.startNode) || !osm.nodes.ContainsKey(way.endNode))
+            if (!osm.nodes.ContainsKey(way.StartNode) || !osm.nodes.ContainsKey(way.EndNode))
             {
                 yield return null;
             }
 
             ushort startNode;
-            if (nodeMap.ContainsKey(way.startNode))
+            if (nodeMap.ContainsKey(way.StartNode))
             {
-                startNode = nodeMap[way.startNode];
+                startNode = nodeMap[way.StartNode];
                 AdjustElevation(startNode, elevation);
             }
             else
             {
-                CreateNode(out startNode, ref rand, ni, osm.nodes[way.startNode],elevation);
+                CreateNode(out startNode, ref rand, ni, osm.nodes[way.StartNode],elevation);
                 AdjustElevation(startNode, elevation);
-                nodeMap.Add(way.startNode, startNode);
+                nodeMap.Add(way.StartNode, startNode);
             }
 
             ushort endNode;
-            if (nodeMap.ContainsKey(way.endNode))
+            if (nodeMap.ContainsKey(way.EndNode))
             {
-                endNode = nodeMap[way.endNode];
+                endNode = nodeMap[way.EndNode];
                 AdjustElevation(endNode, elevation);
             }
             else
             {
-                CreateNode(out endNode, ref rand, ni, osm.nodes[way.endNode],elevation);
+                CreateNode(out endNode, ref rand, ni, osm.nodes[way.EndNode],elevation);
                 AdjustElevation(endNode, elevation);
-                nodeMap.Add(way.endNode, endNode);
+                nodeMap.Add(way.EndNode, endNode);
             }
 
             var currentStartNode = startNode;
@@ -202,7 +199,7 @@ namespace Mapper
 
         private void CreateNode(out ushort startNode, ref Randomizer rand, NetInfo netInfo, Vector2 oldPos, float elevation)
         {
-            var pos = new Vector3(oldPos.x, 0, oldPos.y);
+            var pos = new Vector3(oldPos.x, elevation, oldPos.y);
             pos.y = Singleton<TerrainManager>.instance.SampleRawHeightSmoothWithWater(pos,false,0f);
             var nm = Singleton<NetManager>.instance;
             nm.CreateNode(out startNode, ref rand, netInfo, pos, Singleton<SimulationManager>.instance.m_currentBuildIndex);

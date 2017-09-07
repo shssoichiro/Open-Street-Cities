@@ -1,21 +1,16 @@
 ﻿using Mapper.Curves;
-using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Text;
 using System.Xml.Serialization;
 using UnityEngine;
-using Mapper.OSM;
 
 namespace Mapper.OSM
 {
     public class OSMInterface
     {
         public RoadMapping mapping;
-        private FitCurves fc;
+        private readonly FitCurves fc;
 
         public Dictionary<long, Vector2> nodes = new Dictionary<long, Vector2>();
         public LinkedList<Way> ways = new LinkedList<Way>();
@@ -40,8 +35,8 @@ namespace Mapper.OSM
             Init(osm, scale);
         }
 
-        private void Init(osm osm,double scale)
-		{
+        private void Init(osm osm, double scale)
+        {
             mapping.InitBoundingBox(osm.bounds, scale);
 
             foreach (var node in osm.node)
@@ -64,7 +59,6 @@ namespace Mapper.OSM
 
                 if (mapping.Mapped(way, ref points, ref rt, ref layer))
                 {
-                    Vector2 previousPoint = Vector2.zero;
                     var currentList = new List<long>();
                     for (var i = 0; i < points.Count; i += 1)
                     {
@@ -72,7 +66,6 @@ namespace Mapper.OSM
                         if (nodes.ContainsKey(pp))
                         {
                             currentList.Add(pp);
-                            previousPoint = nodes[pp];
                         }
                         else
                         {
@@ -156,7 +149,7 @@ namespace Mapper.OSM
                         length = 0;
                     }
                 }
-                if (splits.Count() > 0)
+                if (splits.Any())
                 {
                     allSplits.Add(way, splits);
                 }

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace Mapper.Curves
@@ -25,14 +23,16 @@ namespace Mapper.Curves
 
                 int firstPoint = 0;
                 int lastPoint = Points.Count - 1;
-                List<int> pointIndexsToKeep = new List<int>();
+            List<int> pointIndexsToKeep = new List<int>
+            {
 
                 //Add the first and last index to the keepers
-                pointIndexsToKeep.Add(firstPoint);
-                pointIndexsToKeep.Add(lastPoint);
+                firstPoint,
+                lastPoint
+            };
 
-                //The first and the last point cannot be the same
-                while (Points[firstPoint].Equals(Points[lastPoint]))
+            //The first and the last point cannot be the same
+            while (Points[firstPoint].Equals(Points[lastPoint]))
                 {
                     lastPoint--;
                     if (lastPoint <= firstPoint)

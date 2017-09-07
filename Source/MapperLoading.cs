@@ -1,12 +1,6 @@
-﻿using ColossalFramework;
-using ColossalFramework.Math;
-using ColossalFramework.Plugins;
-using ColossalFramework.UI;
+﻿using ColossalFramework.UI;
 using ICities;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace Mapper
@@ -39,7 +33,7 @@ namespace Mapper
             UITabstrip strip = null;
             if (mode == LoadMode.NewGame || mode == LoadMode.LoadGame)
             {
-                strip =  ToolsModifierControl.mainToolbar.component as UITabstrip;
+                strip = ToolsModifierControl.mainToolbar.component as UITabstrip;
             }
             else
             {
@@ -49,10 +43,10 @@ namespace Mapper
             buttonObject = UITemplateManager.GetAsGameObject("MainToolbarButtonTemplate");
             buttonObject2 = UITemplateManager.GetAsGameObject("ScrollablePanelTemplate");
             menuButton = strip.AddTab("mapperMod", buttonObject, buttonObject2, new Type[] { }) as UIButton;
-            menuButton.eventClick += uiButton_eventClick;
+            menuButton.eventClick += UiButton_eventClick;
         }
 
-        private void uiButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        private void UiButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
 
             if (!this.buildingWindow.isVisible)
@@ -65,7 +59,7 @@ namespace Mapper
             {
                 this.buildingWindow.isVisible = false;
                 this.buildingWindow.Hide();
-            }            
+            }
         }
 
         public override void OnLevelUnloading()
@@ -76,14 +70,14 @@ namespace Mapper
 
             if (buildingWindowGameObject != null)
             {
-                GameObject.Destroy(buildingWindowGameObject);
+                UnityEngine.Object.Destroy(buildingWindowGameObject);
             }
 
             if (buttonObject != null)
             {
-                GameObject.Destroy(buttonObject);
-                GameObject.Destroy(buttonObject2);
-                UIComponent.Destroy(menuButton);
+                UnityEngine.Object.Destroy(buttonObject);
+                UnityEngine.Object.Destroy(buttonObject2);
+                UnityEngine.Object.Destroy(menuButton);
             }
         }
 

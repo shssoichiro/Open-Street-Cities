@@ -1,27 +1,9 @@
-﻿using ColossalFramework.Math;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace Mapper
 {
-//    public class ProcessedWay
-//    {
-//        public int layer;
-
-//        public RoadTypes roadTypes;
-
-//        public ProcessedWay(Way way, List<Segment> fitted)
-//        {
-//            this.layer = way.layer;
-//            this.segments = fitted;
-//            this.roadTypes = way.rt;
-//            this.startNode = way.nodes[0];
-//            this.endNode = way.nodes[way.nodes.Count() - 1];            
-//        }
-//    }
 
     public class Segment
     {
@@ -47,19 +29,19 @@ namespace Mapper
 
     public class Way
     {
-        public bool valid = false;
+        public bool valid;
         public List<long> nodes = new List<long>();
         public List<Segment> segments;
 
         public RoadTypes roadTypes;
         public int layer;
 
-        public long startNode
+        public long StartNode
         {
             get { return nodes[0]; }
         }
 
-        public long endNode
+        public long EndNode
         {
             get { return nodes[nodes.Count()-1]; }
         }
