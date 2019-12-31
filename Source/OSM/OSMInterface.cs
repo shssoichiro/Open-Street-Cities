@@ -59,8 +59,16 @@ namespace Mapper.OSM
                 List<long> points = null;
                 int layer = 0;
 
-                string streetName = "unnamed street " + ways.Count.ToString();
-
+                string streetName = "";
+                if (way != null && way.tag != null) {
+                    foreach (var tag in way.tag) {
+                        if (tag != null) {
+                            if (tag.k.Trim().ToLower() == "name") {
+                                streetName = tag.v;
+                            }
+                        }
+                    }
+                }
                 if (mapping.Mapped(way, ref points, ref rt, ref layer))
                 {
                     var currentList = new List<long>();
