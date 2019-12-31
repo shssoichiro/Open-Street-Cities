@@ -30,7 +30,13 @@ namespace Mapper
 
         UILabel errorLabel;
 
-        UIButton okButton;
+        UIButton makeButton;
+        UILabel makeErrorLabel;
+
+        UILabel importLabel;
+        UICheckBox highwayCheckbox;
+        UILabel highwayCheckboxLabel;
+        
 
         public ICities.LoadMode mode;
         RoadMaker2 roadMaker;
@@ -65,7 +71,12 @@ namespace Mapper
 
             errorLabel = AddUIComponent<UILabel>();
 
-            okButton = AddUIComponent<UIButton>();
+            importLabel = AddUIComponent<UILabel>();
+            highwayCheckbox = AddUIComponent<UICheckBox>();
+            highwayCheckboxLabel = AddUIComponent<UILabel>();
+
+            makeButton = AddUIComponent<UIButton>();
+            makeErrorLabel = AddUIComponent<UILabel>();
 
             base.Awake();
 
@@ -84,21 +95,21 @@ namespace Mapper
         {
             
 
-            title.text = "Open Street Map Import";
+            title.text = "OpenStreetCities - OSM Import";
             title.relativePosition = new Vector3(15, 15);
             title.textScale = 0.9f;
             title.size = new Vector2(200, 30);
             var vertPadding = 30;
             var x = 15;
-            var y = 50;
-
-            x = 15;
+            var y = 25;
+            y += vertPadding;
+            SetLabel(pathTextBoxLabel, "Path", x, y);
+            SetTextBox(pathTextBox, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "map.osm"), x + 120, y);
             y += vertPadding;
 
             SetLabel(scaleTextBoxLabel, "Scale", x, y);
             SetTextBox(scaleTextBox, "1", x + 120, y);
             y += vertPadding;
-
 
             SetLabel(toleranceLabel, "Tolerance", x, y);
             SetTextBox(tolerance, "6", x + 120, y);
@@ -110,23 +121,36 @@ namespace Mapper
 
             SetLabel(tilesLabel, "Tiles to Boundary", x, y);
             SetTextBox(tiles, "2.5", x + 120, y);
-            y += vertPadding + 12;
+            y += vertPadding;
 
-            SetLabel(pathTextBoxLabel, "Path", x, y);
-            SetTextBox(pathTextBox, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "map"), x + 120, y);
-            y += vertPadding - 5;
-            SetButton(loadMapButton, "Load OSM From File", y);
+            
+            SetButton(loadMapButton, "Load OSM from file", y);
             loadMapButton.eventClick += LoadMapButton_eventClick;
-            y += vertPadding + 5;
+            y += vertPadding;
 
             SetLabel(errorLabel, "No OSM data loaded.", x, y);
-            errorLabel.textScale = 0.6f;
-            y += vertPadding + 12;
-
-            SetButton(okButton, "Make Roads", y);
-            okButton.eventClick += OkButton_eventClick;
-            okButton.Disable();
+            errorLabel.textScale = 0.7f;
+            y += vertPadding + 50;
+            
+            SetLabel(importLabel, "IMPORT:", x, y);
             y += vertPadding;
+
+            SetCheckBox(highwayCheckbox, true, x, y);
+
+            x += 20;
+            SetLabel(highwayCheckboxLabel, "highways", x, y);
+            x -= 20;
+            y += vertPadding;
+
+            SetButton(makeButton, "Make roads", y);
+            makeButton.eventClick += MakeButton_eventClick;
+            makeButton.Disable();
+            y += vertPadding;
+
+            SetLabel(makeErrorLabel, "No roads loaded.", x, y);
+            makeErrorLabel.textScale = 0.7f;
+
+            y += 50;
 
 
             height = y + vertPadding + 6;
@@ -137,7 +161,6 @@ namespace Mapper
             var path = pathTextBox.text.Trim();
             if (!File.Exists(path))
             {
-                path += ".osm";
                 if (!File.Exists(path))
                 {
                     errorLabel.text = "Cannot find osm file: " + path;
@@ -146,12 +169,17 @@ namespace Mapper
             }
             try
             {
+                errorLabel.text = "Loading OSM file ...";
                 var osm = new OSMInterface(pathTextBox.text.Trim(), double.Parse(scaleTextBox.text.Trim()), double.Parse(tolerance.text.Trim()), double.Parse(curveTolerance.text.Trim()), double.Parse(tiles.text.Trim()));
                 currentIndex = 0;
+                
+
+
+                errorLabel.text = "OSM file loaded: " + osm.ways.Count.ToString() + " ways found.";
                 roadMaker = new RoadMaker2(osm);
-                errorLabel.text = "File Loaded.";
-                okButton.Enable();
-                loadMapButton.Disable();
+
+                makeButton.Enable();
+                //loadMapButton.Disable();
             }
             catch (Exception ex)
             {
@@ -186,19 +214,19 @@ namespace Mapper
 
         }
 
-        private void SetCheckBox(UICustomCheckbox3 pedestriansCheck, int x, int y)
+        private void SetCheckBox(UICheckBox check, Boolean start_on, int x, int y)
         {
 
-            pedestriansCheck.IsChecked = true;
-            pedestriansCheck.relativePosition = new Vector3(x, y);
-            pedestriansCheck.size = new Vector2(13, 13);
-            pedestriansCheck.Show();
-            pedestriansCheck.color = new Color32(185, 221, 254, 255);
-            pedestriansCheck.enabled = true;            
-            pedestriansCheck.spriteName = "AchievementCheckedFalse";
-            pedestriansCheck.eventClick += (component, param) =>
+            check.isChecked = start_on;
+            check.absolutePosition = new Vector3(x, y);
+            check.color = Color.white;
+            check.size = new Vector2(16, 16);
+            check.Show();
+
+            check.enabled = true;
+            check.eventClick += (component, param) =>
             {
-                pedestriansCheck.IsChecked = !pedestriansCheck.IsChecked;
+                check.isChecked = !check.isChecked;
             };
         }
 
@@ -235,11 +263,13 @@ namespace Mapper
             pedestrianLabel.size = new Vector3(120,20);
         }
 
-        private void OkButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        private void MakeButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             if (roadMaker != null)
             {
                 createRoads = !createRoads;
+            } else {
+                makeErrorLabel.text = "No ways found.";
             }
         }
 
@@ -254,13 +284,13 @@ namespace Mapper
                     SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex));
                     currentIndex += 1;
                     var instance = Singleton<NetManager>.instance;
-                    errorLabel.text = String.Format("Making road {0} out of {1}. Nodes: {2}. Segments: {3}", currentIndex, roadMaker.osm.ways.Count(), instance.m_nodeCount, instance.m_segmentCount);
+                    makeErrorLabel.text = String.Format("Making road {0} out of {1}. Nodes: {2}. Segments: {3}", currentIndex, roadMaker.osm.ways.Count(), instance.m_nodeCount, instance.m_segmentCount);
                 }
             }
 
             if (roadMaker != null && currentIndex == roadMaker.osm.ways.Count())
             {
-                errorLabel.text = "Done.";
+                makeErrorLabel.text = "Done.";
                 createRoads = false;
             }
             base.Update();

@@ -8,14 +8,14 @@ namespace Mapper
         {
             get
             {
-                return "Open City Maps";
+                return "Open Street Cities";
             }
         }
         public string Description
         {
             get
             {
-                return "Import Cities from Open Street Map";
+                return "Import roads from Open Street Map";
             }
         }
     }

@@ -2,8 +2,7 @@
 using System.Linq;
 using UnityEngine;
 
-namespace Mapper
-{
+namespace Mapper {
 
     public class Segment
     {
@@ -35,6 +34,7 @@ namespace Mapper
 
         public RoadTypes roadTypes;
         public int layer;
+        public string name;
 
         public long StartNode
         {
@@ -46,13 +46,13 @@ namespace Mapper
             get { return nodes[nodes.Count()-1]; }
         }
 
-        public Way(List<long> points, RoadTypes rt,int layer)
+        public Way(List<long> points, RoadTypes rt,int layer, string name)
         {
             this.roadTypes = rt;
             this.nodes = points;
             this.layer = layer;
+            this.name = name;
         }
-
 
         internal void Update(List<Segment> list)
         {

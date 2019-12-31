@@ -55,6 +55,7 @@ namespace Mapper
             if (netInfos.ContainsKey(way.roadTypes))
             {
                 ni = netInfos[way.roadTypes];
+                
             }
             else
             {
@@ -104,7 +105,6 @@ namespace Mapper
                 AdjustElevation(endNode, elevation);
                 nodeMap.Add(way.EndNode, endNode);
             }
-
             var currentStartNode = startNode;
             for (var i = 0; i < way.segments.Count(); i += 1)
             {
@@ -132,6 +132,8 @@ namespace Mapper
                     if (nm.CreateSegment(out segmentId, ref rand, ni, currentStartNode, currentEndNode, vector, -vector, Singleton<SimulationManager>.instance.m_currentBuildIndex, Singleton<SimulationManager>.instance.m_currentBuildIndex, false))
                     {
                         Singleton<SimulationManager>.instance.m_currentBuildIndex += 2u;
+
+                        nm.SetSegmentNameImpl(segmentId, way.name);
                     }
                 }
                 else
@@ -147,6 +149,8 @@ namespace Mapper
                     if (nm.CreateSegment(out segmentId, ref rand, ni, currentStartNode, currentEndNode, entry, -exit, Singleton<SimulationManager>.instance.m_currentBuildIndex, Singleton<SimulationManager>.instance.m_currentBuildIndex, false))
                     {
                         Singleton<SimulationManager>.instance.m_currentBuildIndex += 2u;
+
+                        nm.SetSegmentNameImpl(segmentId, way.name);
                     }
                 }
                 currentStartNode = currentEndNode;

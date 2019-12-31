@@ -449,6 +449,8 @@
 
 		private string userField;
 
+        private string nameField;
+
 		/// <remarks/>
 		[System.Xml.Serialization.XmlElementAttribute("nd")]
 		public osmWayND[] nd
@@ -477,8 +479,8 @@
 			}
 		}
 
-		/// <remarks/>
-		[System.Xml.Serialization.XmlAttributeAttribute()]
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
 		public uint id
 		{
 			get

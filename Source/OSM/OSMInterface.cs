@@ -14,7 +14,7 @@ namespace Mapper.OSM
 
         public Dictionary<long, Vector2> nodes = new Dictionary<long, Vector2>();
         public LinkedList<Way> ways = new LinkedList<Way>();
-
+        
         double tolerance = 10;
         double curveError = 5;
 
@@ -39,6 +39,7 @@ namespace Mapper.OSM
         {
             mapping.InitBoundingBox(osm.bounds, scale);
 
+            nodes.Clear();
             foreach (var node in osm.node)
             {
                 if (!nodes.ContainsKey(node.id) && node.lat != 0 && node.lon != 0)
@@ -51,11 +52,14 @@ namespace Mapper.OSM
                 }
             }
 
-            foreach (var way in osm.way.OrderBy(c => c.changeset))
+            ways.Clear();
+            foreach (var way in osm.way)
             {
                 RoadTypes rt = RoadTypes.None;
                 List<long> points = null;
                 int layer = 0;
+
+                string streetName = "unnamed street " + ways.Count.ToString();
 
                 if (mapping.Mapped(way, ref points, ref rt, ref layer))
                 {
@@ -71,7 +75,7 @@ namespace Mapper.OSM
                         {
                             if (currentList.Count() > 1 || currentList.Contains(pp))
                             {
-                                ways.AddLast(new Way(currentList, rt, layer));
+                                ways.AddLast(new Way(currentList, rt, layer, streetName));
                                 currentList = new List<long>();
                             }
                         }
@@ -79,12 +83,12 @@ namespace Mapper.OSM
                     }
                     if (currentList.Count() > 1)
                     {
-                        ways.AddLast(new Way(currentList, rt, layer));
+                        ways.AddLast(new Way(currentList, rt, layer, streetName));
                     }
                 }
             }
-
-            var intersection = new Dictionary<long, List<Way>>();
+            
+            /*var intersection = new Dictionary<long, List<Way>>();
             foreach (var ww in ways)
             {
                 foreach (var pp in ww.nodes)
@@ -118,8 +122,9 @@ namespace Mapper.OSM
                 SplitWay(waySplits.Key, waySplits.Value);
             }
 
-            BreakWaysWhichAreTooLong();
+            BreakWaysWhichAreTooLong();*/
             SimplifyWays();
+
         }
 
         private void BreakWaysWhichAreTooLong()
@@ -173,7 +178,7 @@ namespace Mapper.OSM
                 {
                     nextIndex = splits[i + 1];
                 }
-                var newWay = new Way(way.nodes.GetRange(splits[i], 1 + nextIndex - splits[i]), way.roadTypes, way.layer);
+                var newWay = new Way(way.nodes.GetRange(splits[i], 1 + nextIndex - splits[i]), way.roadTypes, way.layer, way.name);
                 ways.AddAfter(index, newWay);
             }
             way.nodes.RemoveRange(splits[0] + 1, way.nodes.Count() - splits[0] - 1);
