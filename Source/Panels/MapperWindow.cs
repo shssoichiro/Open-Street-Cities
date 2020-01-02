@@ -5,6 +5,7 @@ using ColossalFramework.UI;
 using UnityEngine;
 using System.IO;
 using Mapper.OSM;
+using System.Collections.Generic;
 
 namespace Mapper
 {
@@ -34,14 +35,20 @@ namespace Mapper
         UILabel makeErrorLabel;
 
         UILabel importLabel;
-        UICheckBox highwayCheckbox;
-        UILabel highwayCheckboxLabel;
         
+        Dictionary<RoadTypes, UILabel> roadCheckbox = new Dictionary<RoadTypes, UILabel>();
+        Dictionary<RoadTypes, UILabel> roadCheckboxLabel = new Dictionary<RoadTypes, UILabel>();
+        UILabel totalRoadLabel;
+
+        OSMInterface osm;
+
+        int roadCheckBoxStartY = 0;
 
         public ICities.LoadMode mode;
         RoadMaker2 roadMaker;
         bool createRoads;
         int currentIndex;
+        int currentRoadTypeIndex;
 
         public override void Awake()
         {
@@ -58,8 +65,7 @@ namespace Mapper
 
             scaleTextBox = AddUIComponent<UITextField>();
             scaleTextBoxLabel = AddUIComponent<UILabel>();
-
-
+            
             tolerance = AddUIComponent<UITextField>();
             toleranceLabel = AddUIComponent<UILabel>();
 
@@ -72,12 +78,10 @@ namespace Mapper
             errorLabel = AddUIComponent<UILabel>();
 
             importLabel = AddUIComponent<UILabel>();
-            highwayCheckbox = AddUIComponent<UICheckBox>();
-            highwayCheckboxLabel = AddUIComponent<UILabel>();
 
+            totalRoadLabel = AddUIComponent<UILabel>();
             makeButton = AddUIComponent<UIButton>();
             makeErrorLabel = AddUIComponent<UILabel>();
-
             base.Awake();
 
         }
@@ -93,8 +97,6 @@ namespace Mapper
 
         public void SetupControls()
         {
-            
-
             title.text = "OpenStreetCities - OSM Import";
             title.relativePosition = new Vector3(15, 15);
             title.textScale = 0.9f;
@@ -129,18 +131,18 @@ namespace Mapper
             y += vertPadding;
 
             SetLabel(errorLabel, "No OSM data loaded.", x, y);
-            errorLabel.textScale = 0.7f;
-            y += vertPadding + 50;
+            errorLabel.textScale = 0.6f;
+            y += vertPadding * 2;
             
-            SetLabel(importLabel, "IMPORT:", x, y);
-            y += vertPadding;
+            SetLabel(importLabel, "Create road types:", x, y);
+            y += 20;
 
-            SetCheckBox(highwayCheckbox, true, x, y);
-
-            x += 20;
-            SetLabel(highwayCheckboxLabel, "highways", x, y);
-            x -= 20;
-            y += vertPadding;
+            roadCheckBoxStartY = y;
+            //SetCheckBox(motorwayCheckbox, true, motorwayCheckboxLabel, x, y);
+            //x += 20;
+            //SetLabel(motorwayCheckboxLabel, "motorway", x, y);
+            ///x -= 20;
+            y += vertPadding * 3;
 
             SetButton(makeButton, "Make roads", y);
             makeButton.eventClick += MakeButton_eventClick;
@@ -148,7 +150,7 @@ namespace Mapper
             y += vertPadding;
 
             SetLabel(makeErrorLabel, "No roads loaded.", x, y);
-            makeErrorLabel.textScale = 0.7f;
+            makeErrorLabel.textScale = 0.6f;
 
             y += 50;
 
@@ -170,15 +172,56 @@ namespace Mapper
             try
             {
                 errorLabel.text = "Loading OSM file ...";
-                var osm = new OSMInterface(pathTextBox.text.Trim(), double.Parse(scaleTextBox.text.Trim()), double.Parse(tolerance.text.Trim()), double.Parse(curveTolerance.text.Trim()), double.Parse(tiles.text.Trim()));
+                this.osm = new OSMInterface(pathTextBox.text.Trim(), double.Parse(scaleTextBox.text.Trim()), double.Parse(tolerance.text.Trim()), double.Parse(curveTolerance.text.Trim()), double.Parse(tiles.text.Trim()));
                 currentIndex = 0;
-                
-
+                currentRoadTypeIndex = 0;
 
                 errorLabel.text = "OSM file loaded: " + osm.ways.Count.ToString() + " ways found.";
-                roadMaker = new RoadMaker2(osm);
+                roadMaker = new RoadMaker2(this.osm);
+
+                roadCheckbox.Clear();
+                int y = roadCheckBoxStartY;
+                int x = 15;
+
+                if (roadMaker != null && roadMaker.netInfos != null) {
+                    int rtIndex = 0;
+                    foreach (var rt in osm.roadTypeCount) {
+                        UILabel chk;
+                        UILabel lbl;
+                        if (!roadCheckbox.ContainsKey(rt.Key)) {
+                            chk = AddUIComponent<UILabel>();
+                            roadCheckbox.Add(rt.Key, chk);
+                            lbl = AddUIComponent<UILabel>();
+                            roadCheckboxLabel.Add(rt.Key, lbl);
+                        } else {
+                            chk = roadCheckbox[rt.Key];
+                            lbl = roadCheckboxLabel[rt.Key];
+                        }
+                        chk.textScale = .7f;
+
+                        SetCheckBox(chk, true, lbl, x, y);
+                        x += 16;
+                        SetLabel(lbl, rt.Key.ToString() + "("+rt.Value.ToString()+" nodes)", x, y);
+                        lbl.textScale = .6f;
+                        
+                        rtIndex++;
+                        if (rtIndex % 2 == 0) {
+                            x = 15;
+                            y += 12;
+                        } else {
+                            x = 15 + 250 * (rtIndex % 2);
+                        }
+                    }
+                    x = 250;
+                    y += 12;
+                    
+                    SetLabel(totalRoadLabel, "Total: 0 / 32256", x, y);
+                    totalRoadLabel.textScale = .7f;
+                }
 
                 makeButton.Enable();
+
+                updateLimits();
                 //loadMapButton.Disable();
             }
             catch (Exception ex)
@@ -214,20 +257,48 @@ namespace Mapper
 
         }
 
-        private void SetCheckBox(UICheckBox check, Boolean start_on, int x, int y)
+        private void SetCheckBox(UILabel check, Boolean start_on, UILabel label, int x, int y)
         {
-
-            check.isChecked = start_on;
-            check.absolutePosition = new Vector3(x, y);
+            Boolean isChecked = start_on;
+            check.relativePosition = new Vector3(x, y);
             check.color = Color.white;
-            check.size = new Vector2(16, 16);
+            check.size = new Vector2(13, 13);
+            check.text = (isChecked ? "☑" : "☐");
             check.Show();
-
             check.enabled = true;
-            check.eventClick += (component, param) =>
-            {
-                check.isChecked = !check.isChecked;
+
+            MouseEventHandler checkClick = (component, param) => {
+                isChecked = !isChecked;
+                check.text = (isChecked ? "☑" : "☐");
+
+                updateLimits(); 
             };
+
+            check.eventClicked += checkClick;
+
+            label.eventClicked += checkClick;
+        }
+        
+        private void updateLimits() {
+            int maxNodes = 32256;
+            int total = 0;
+
+            roadMaker.clearEnabledRoadTypes();
+            foreach (var rt in osm.roadTypeCount) {
+                if (roadCheckbox.ContainsKey(rt.Key) && roadCheckbox[rt.Key].text == "☑") { // @todo: improve checkboxes!
+                    total += rt.Value;
+                    roadMaker.addEnabledRoadTypes(rt.Key);
+                }
+            }
+
+            if (total > maxNodes) {
+                totalRoadLabel.textColor = Color.red;
+            } else if(total > maxNodes * .8f) {
+                totalRoadLabel.textColor = new Color(1f, 1f, 0f);
+            } else {
+                totalRoadLabel.textColor = Color.white;
+            }
+            totalRoadLabel.text = "Total: " + total + " / 32256";
         }
 
         private void SetTextBox(UITextField scaleTextBox, string p, int x, int y)
@@ -255,42 +326,58 @@ namespace Mapper
             
         }
 
-        private void SetLabel(UILabel pedestrianLabel, string p, int x, int y)
+        private void SetLabel(UILabel lbl, string p, int x, int y)
         {
-            pedestrianLabel.relativePosition = new Vector3(x, y);
-            pedestrianLabel.text = p;
-            pedestrianLabel.textScale = 0.8f;
-            pedestrianLabel.size = new Vector3(120,20);
+            lbl.relativePosition = new Vector3(x, y);
+            lbl.text = p;
+            lbl.textScale = 0.8f;
+            lbl.size = new Vector3(120,20);
         }
 
         private void MakeButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             if (roadMaker != null)
             {
+                currentIndex = 0;
+                currentRoadTypeIndex = 0;
                 createRoads = !createRoads;
+                if (createRoads) {
+                    makeErrorLabel.text = "Create roads ... ";
+                    makeErrorLabel.textColor = Color.white;
+                }
             } else {
                 makeErrorLabel.text = "No ways found.";
+                makeErrorLabel.textColor = Color.red;
             }
         }
 
         public override void Update()
         {
+            Boolean reachedTheEnd = false;
             if (createRoads)
             {
-
-                if (currentIndex < roadMaker.osm.ways.Count())
-                {
-                    //roadMaker.MakeRoad(currentIndex);
-                    SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex));
-                    currentIndex += 1;
-                    var instance = Singleton<NetManager>.instance;
-                    makeErrorLabel.text = String.Format("Making road {0} out of {1}. Nodes: {2}. Segments: {3}", currentIndex, roadMaker.osm.ways.Count(), instance.m_nodeCount, instance.m_segmentCount);
+                if (currentRoadTypeIndex < roadCheckbox.Count) {
+                    RoadTypes rt = roadCheckbox.Keys.ElementAt(currentRoadTypeIndex);
+                    
+                    if (roadCheckbox[rt].text == "☑" && currentIndex < roadMaker.osm.ways[rt].Count()) {
+                        SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex, rt));
+                        currentIndex += 1;
+                        var instance = Singleton<NetManager>.instance;
+                        makeErrorLabel.text = String.Format("RoadType {0} / {1}; road {2} / {3}. Nodes: {4}. Segments: {5}", currentRoadTypeIndex, roadMaker.osm.ways.Count(), currentIndex, roadMaker.osm.ways[rt].Count(), instance.m_nodeCount, instance.m_segmentCount);
+                    } else {
+                        // end of current roadtype
+                        currentRoadTypeIndex++;
+                        currentIndex = 0;
+                    }
+                } else {
+                    reachedTheEnd = true;
                 }
             }
 
-            if (roadMaker != null && currentIndex == roadMaker.osm.ways.Count())
+            if (roadMaker != null && reachedTheEnd)
             {
-                makeErrorLabel.text = "Done.";
+                makeErrorLabel.text += "Done.";
+                makeErrorLabel.textColor = Color.green;
                 createRoads = false;
             }
             base.Update();

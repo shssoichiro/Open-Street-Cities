@@ -13,8 +13,11 @@ namespace Mapper
         public OSM.OSMInterface osm;
         private Randomizer rand;
 
-        private Dictionary<RoadTypes, NetInfo> netInfos = new Dictionary<RoadTypes, NetInfo>();
+        public Dictionary<RoadTypes, NetInfo> netInfos = new Dictionary<RoadTypes, NetInfo>();
         private Dictionary<long, ushort> nodeMap = new Dictionary<long, ushort>();
+
+        private List<RoadTypes> enabledRoadTypes = new List<RoadTypes>();
+
         public RoadMaker2(OSM.OSMInterface osm)
         {
             this.osm = osm;
@@ -35,8 +38,15 @@ namespace Mapper
             }
         }
 
+        public void clearEnabledRoadTypes() {
+            enabledRoadTypes.Clear();
+        }
+        public void addEnabledRoadTypes(RoadTypes rt) {
+            enabledRoadTypes.Add(rt);
+        }
 
-        public IEnumerator MakeRoad(int p)
+
+        public IEnumerator MakeRoad(int p, RoadTypes rt)
         {
             var nm = Singleton<NetManager>.instance;
 
@@ -44,10 +54,10 @@ namespace Mapper
             {
                 yield return null;
             }
-            var way = osm.ways.ElementAt(p);
+            var way = osm.ways[rt].ElementAt(p);
             NetInfo ni = null;
 
-            if (way.roadTypes == RoadTypes.None)
+            if (way.roadTypes == RoadTypes.None || enabledRoadTypes.IndexOf(way.roadTypes) < 0) 
             {
                 yield break;
             }
