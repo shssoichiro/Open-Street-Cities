@@ -63,6 +63,7 @@ namespace Mapper
     }
 
     public enum OSMRoadTypes {
+        none,
         motorway, 
         trunk, 
         primary, 
@@ -75,6 +76,7 @@ namespace Mapper
         service,
         living_street,
         track,
+        path,
         motorway_link,
         trunk_link,
         primary_link,
@@ -111,17 +113,17 @@ namespace Mapper
         public RoadMapping(double tiles)
         {
             maxBounds = tiles * 1920;
-            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", OSMRoadTypes.motorway.ToString()), RoadTypes.Highway);
-            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "trunk"), RoadTypes.LargeRoadDecorationGrass);
-            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "primary"), RoadTypes.LargeRoad);
+            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "motorway"), RoadTypes.Highway);
+            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "trunk"), RoadTypes.BasicRoad);
+            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "primary"), RoadTypes.BasicRoad);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "secondary"), RoadTypes.BasicRoad);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "tertiary"), RoadTypes.BasicRoad);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "unclassified"), RoadTypes.BasicRoad);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "bus_guideway"), RoadTypes.BasicRoad);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "road"), RoadTypes.BasicRoad);
-            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "residential"), RoadTypes.GravelRoad);
-            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "service"), RoadTypes.GravelRoad);
-            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "living_street"), RoadTypes.GravelRoad);
+            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "residential"), RoadTypes.BasicRoad);
+            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "service"), RoadTypes.BasicRoad);
+            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "living_street"), RoadTypes.BasicRoad);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "track"), RoadTypes.GravelRoad);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "motorway_link"), RoadTypes.HighwayRamp);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "trunk_link"), RoadTypes.HighwayRamp);
@@ -220,7 +222,7 @@ namespace Mapper
         }
 
 
-        public bool Mapped(osmWay way, ref List<long> points, ref RoadTypes rt, ref int layer)
+        public bool Mapped(osmWay way, ref List<long> points, ref RoadTypes rt, ref OSMRoadTypes osmrt, ref int layer)
         {
             if (way.tag == null || way.nd == null || way.nd.Count() < 2)
             {
@@ -257,6 +259,12 @@ namespace Mapper
                     var kvp = new KeyValuePair<string, string>(tag.k.Trim(), tag.v.Trim());
                     if (roadTypeMapping.ContainsKey(kvp))
                     {
+                        try {
+                            osmrt = (OSMRoadTypes)Enum.Parse(typeof(OSMRoadTypes), kvp.Value.Trim().ToLower());
+                        } catch {
+                            osmrt = OSMRoadTypes.none;
+                        }
+                        
                         rt = roadTypeMapping[kvp];
                     }
                 }
@@ -385,15 +393,14 @@ namespace Mapper
         //    endLatLon = new Vector2(Math.Max(endLatLon.x, (float)node.lon), Math.Max(endLatLon.y, (float)node.lat));
         //}
 
-        public void InitBoundingBox(osmBounds bounds,double scale)
+        public void InitBoundingBox(osmBounds bounds)
         {
-
             this.middleLatLon = new Vector2((float)(bounds.minlon + bounds.maxlon) / 2f, (float)(bounds.minlat + bounds.maxlat) / 2f);
             var lat = Deg2rad(this.middleLatLon.y);
             var radius = WGS84EarthRadius(lat);
             var pradius = radius * Math.Cos(lat);
-            scaleX = scale * GameSizeGameCoordinates / Rad2deg(GameSizeMetres / pradius);
-            scaleY = scale * GameSizeGameCoordinates / Rad2deg(GameSizeMetres / radius);
+            scaleX =  GameSizeGameCoordinates / Rad2deg(GameSizeMetres / pradius);
+            scaleY = GameSizeGameCoordinates / Rad2deg(GameSizeMetres / radius);
 
         }
 

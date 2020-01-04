@@ -13,31 +13,31 @@ namespace Mapper
     {
         UILabel title;
 
-        UITextField pathTextBox;
-        UILabel pathTextBoxLabel;
-        UIButton loadMapButton;
+        UITextField pathInput;
+        UILabel pathLabel;
 
         UITextField scaleTextBox;
         UILabel scaleTextBoxLabel;
 
-        UITextField tolerance;
+        UITextField toleranceInput;
         UILabel toleranceLabel;
 
-        UITextField curveTolerance;
-        UILabel curveToleranceLabel;
-
-        UITextField tiles;
+        UITextField tilesInput;
         UILabel tilesLabel;
 
+        UITextField curveToleranceInput;
+        UILabel curveToleranceLabel;
+
+        UIButton loadMapButton;
+        UIButton discardMapButton;
         UILabel errorLabel;
+        UILabel checkRoadTypesLabel;
 
         UIButton makeButton;
         UILabel makeErrorLabel;
-
-        UILabel importLabel;
         
-        Dictionary<RoadTypes, UILabel> roadCheckbox = new Dictionary<RoadTypes, UILabel>();
-        Dictionary<RoadTypes, UILabel> roadCheckboxLabel = new Dictionary<RoadTypes, UILabel>();
+        SortedList<OSMRoadTypes, UILabel> roadCheckbox = new SortedList<OSMRoadTypes, UILabel>();
+        SortedList<OSMRoadTypes, UILabel> roadCheckboxLabel = new SortedList<OSMRoadTypes, UILabel>();
         UILabel totalRoadLabel;
 
         OSMInterface osm;
@@ -59,25 +59,23 @@ namespace Mapper
 
             title = AddUIComponent<UILabel>();
 
-            pathTextBox = AddUIComponent<UITextField>();
-            pathTextBoxLabel = AddUIComponent<UILabel>();
-            loadMapButton = AddUIComponent<UIButton>();
-
-            scaleTextBox = AddUIComponent<UITextField>();
-            scaleTextBoxLabel = AddUIComponent<UILabel>();
-            
-            tolerance = AddUIComponent<UITextField>();
+            pathInput = AddUIComponent<UITextField>();
+            pathLabel = AddUIComponent<UILabel>();
+ 
+            toleranceInput = AddUIComponent<UITextField>();
             toleranceLabel = AddUIComponent<UILabel>();
 
-            curveTolerance = AddUIComponent<UITextField>();
+            curveToleranceInput = AddUIComponent<UITextField>();
             curveToleranceLabel = AddUIComponent<UILabel>();
 
-            tiles = AddUIComponent<UITextField>();
+            tilesInput = AddUIComponent<UITextField>();
             tilesLabel = AddUIComponent<UILabel>();
 
-            errorLabel = AddUIComponent<UILabel>();
+            loadMapButton = AddUIComponent<UIButton>();
+            discardMapButton = AddUIComponent<UIButton>();
+            checkRoadTypesLabel = AddUIComponent<UILabel>();
 
-            importLabel = AddUIComponent<UILabel>();
+            errorLabel = AddUIComponent<UILabel>();
 
             totalRoadLabel = AddUIComponent<UILabel>();
             makeButton = AddUIComponent<UIButton>();
@@ -105,62 +103,60 @@ namespace Mapper
             var x = 15;
             var y = 25;
             y += vertPadding;
-            SetLabel(pathTextBoxLabel, "Path", x, y);
-            SetTextBox(pathTextBox, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "map.osm"), x + 120, y);
+            SetLabel(pathLabel, "Path", x, y);
+            SetTextBox(pathInput, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "map.osm"), x + 120, y);
             y += vertPadding;
-
-            SetLabel(scaleTextBoxLabel, "Scale", x, y);
-            SetTextBox(scaleTextBox, "1", x + 120, y);
-            y += vertPadding;
-
+            
             SetLabel(toleranceLabel, "Tolerance", x, y);
-            SetTextBox(tolerance, "6", x + 120, y);
+            SetTextBox(toleranceInput, "6", x + 120, y);
             y += vertPadding;
 
             SetLabel(curveToleranceLabel, "Curve Tolerance", x, y);
-            SetTextBox(curveTolerance, "6", x + 120, y);
+            SetTextBox(curveToleranceInput, "6", x + 120, y);
             y += vertPadding;
-
-            SetLabel(tilesLabel, "Tiles to Boundary", x, y);
-            SetTextBox(tiles, "2.5", x + 120, y);
-            y += vertPadding;
-
             
-            SetButton(loadMapButton, "Load OSM from file", y);
+            SetLabel(tilesLabel, "Tiles to Boundary", x, y);
+            SetTextBox(tilesInput, "2.5", x + 120, y);
+            y += vertPadding;
+            
+            SetButton(loadMapButton, "Load OSM from file", x, y);
             loadMapButton.eventClick += LoadMapButton_eventClick;
+
+            SetButton(discardMapButton, "Discard", x + 235, y);
+            discardMapButton.eventClick += DiscardMapButton_eventClick;
+            disableButton(discardMapButton);
+
             y += vertPadding;
 
             SetLabel(errorLabel, "No OSM data loaded.", x, y);
             errorLabel.textScale = 0.6f;
             y += vertPadding * 2;
             
-            SetLabel(importLabel, "Create road types:", x, y);
+            SetLabel(checkRoadTypesLabel, "Create road types:", x, y);
             y += 20;
 
             roadCheckBoxStartY = y;
-            //SetCheckBox(motorwayCheckbox, true, motorwayCheckboxLabel, x, y);
-            //x += 20;
-            //SetLabel(motorwayCheckboxLabel, "motorway", x, y);
-            ///x -= 20;
-            y += vertPadding * 3;
+            y += 200;
 
             SetButton(makeButton, "Make roads", y);
             makeButton.eventClick += MakeButton_eventClick;
-            makeButton.Disable();
+            disableButton(makeButton); 
             y += vertPadding;
 
-            SetLabel(makeErrorLabel, "No roads loaded.", x, y);
+            SetLabel(makeErrorLabel, "", x, y);
             makeErrorLabel.textScale = 0.6f;
 
             y += 50;
-
-
+            
             height = y + vertPadding + 6;
+        }
+        private void DiscardMapButton_eventClick(UIComponent component, UIMouseEventParameter eventParam) {
+            enableOSMImportFields();
         }
 
         private void LoadMapButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
-            var path = pathTextBox.text.Trim();
+            var path = pathInput.text.Trim();
             if (!File.Exists(path))
             {
                 if (!File.Exists(path))
@@ -171,12 +167,18 @@ namespace Mapper
             }
             try
             {
-                errorLabel.text = "Loading OSM file ...";
-                this.osm = new OSMInterface(pathTextBox.text.Trim(), double.Parse(scaleTextBox.text.Trim()), double.Parse(tolerance.text.Trim()), double.Parse(curveTolerance.text.Trim()), double.Parse(tiles.text.Trim()));
+                errorLabel.text = "Loading OSM file ... (application might look frozen)";
+                
+                this.osm = new OSMInterface(pathInput.text.Trim(), double.Parse(toleranceInput.text.Trim()), double.Parse(curveToleranceInput.text.Trim()), double.Parse(tilesInput.text.Trim()));
                 currentIndex = 0;
                 currentRoadTypeIndex = 0;
 
-                errorLabel.text = "OSM file loaded: " + osm.ways.Count.ToString() + " ways found.";
+                int totalCount = 0;
+                foreach (var rt in osm.ways) {
+                    totalCount += rt.Value.Count;
+                }
+                errorLabel.text = "OSM file loaded: " + totalCount + " roads, (" + osm.ways.Count.ToString() + " types) found.";
+
                 roadMaker = new RoadMaker2(this.osm);
 
                 roadCheckbox.Clear();
@@ -185,23 +187,23 @@ namespace Mapper
 
                 if (roadMaker != null && roadMaker.netInfos != null) {
                     int rtIndex = 0;
-                    foreach (var rt in osm.roadTypeCount) {
+                    foreach (var osmrt in osm.roadTypeCount) {
                         UILabel chk;
                         UILabel lbl;
-                        if (!roadCheckbox.ContainsKey(rt.Key)) {
+                        if (!roadCheckbox.ContainsKey(osmrt.Key)) {
                             chk = AddUIComponent<UILabel>();
-                            roadCheckbox.Add(rt.Key, chk);
+                            roadCheckbox.Add(osmrt.Key, chk);
                             lbl = AddUIComponent<UILabel>();
-                            roadCheckboxLabel.Add(rt.Key, lbl);
+                            roadCheckboxLabel.Add(osmrt.Key, lbl);
                         } else {
-                            chk = roadCheckbox[rt.Key];
-                            lbl = roadCheckboxLabel[rt.Key];
+                            chk = roadCheckbox[osmrt.Key];
+                            lbl = roadCheckboxLabel[osmrt.Key];
                         }
                         chk.textScale = .7f;
 
                         SetCheckBox(chk, true, lbl, x, y);
                         x += 16;
-                        SetLabel(lbl, rt.Key.ToString() + "("+rt.Value.ToString()+" nodes)", x, y);
+                        SetLabel(lbl, osmrt.Key.ToString() + "("+ osmrt.Value.ToString()+" nodes)", x, y);
                         lbl.textScale = .6f;
                         
                         rtIndex++;
@@ -217,10 +219,10 @@ namespace Mapper
                     
                     SetLabel(totalRoadLabel, "Total: 0 / 32256", x, y);
                     totalRoadLabel.textScale = .7f;
+
                 }
 
-                makeButton.Enable();
-
+                disableOSMImportFields();
                 updateLimits();
                 //loadMapButton.Disable();
             }
@@ -229,31 +231,68 @@ namespace Mapper
                 errorLabel.text = ex.ToString();
             }
         }
-
-        private void SetButton(UIButton okButton, string p1,int x, int y)
-        {
-            okButton.text = p1;
-            okButton.normalBgSprite = "ButtonMenu";
-            okButton.hoveredBgSprite = "ButtonMenuHovered";
-            okButton.disabledBgSprite = "ButtonMenuDisabled";
-            okButton.focusedBgSprite = "ButtonMenuFocused";
-            okButton.pressedBgSprite = "ButtonMenuPressed";
-            okButton.size = new Vector2(50, 18);
-            okButton.relativePosition = new Vector3(x, y - 3);
-            okButton.textScale = 0.8f;
+        private void disableButton(UIButton btn) {
+            btn.Disable();
+            btn.textColor = Color.gray;
+            btn.normalBgSprite = "ButtonMenuDisabled";
+        }
+        private void enableButton(UIButton btn) {
+            btn.Disable();
+            btn.textColor = Color.white;
+            btn.normalBgSprite = "ButtonMenu";
         }
 
-        private void SetButton(UIButton okButton, string p1, int y)
+        private void disableOSMImportFields() {
+            
+            pathInput.Disable();
+            pathLabel.Disable();
+
+            toleranceInput.Disable();
+            curveToleranceInput.Disable();
+            tilesInput.Disable();
+
+            enableButton(makeButton);
+            enableButton(discardMapButton);
+            disableButton(loadMapButton);
+        }
+        private void enableOSMImportFields() {
+            loadMapButton.Enable();
+            pathInput.Enable();
+            pathLabel.Enable();
+
+            toleranceInput.Enable();
+            curveToleranceInput.Enable();
+            tilesInput.Enable();
+
+            disableButton(makeButton); 
+            disableButton(discardMapButton);
+            enableButton(loadMapButton);
+        }
+
+        private void SetButton(UIButton btn, string p1,int x, int y)
         {
-            okButton.text = p1;
-            okButton.normalBgSprite = "ButtonMenu";
-            okButton.hoveredBgSprite = "ButtonMenuHovered";
-            okButton.disabledBgSprite = "ButtonMenuDisabled";
-            okButton.focusedBgSprite = "ButtonMenuFocused";
-            okButton.pressedBgSprite = "ButtonMenuPressed";
-            okButton.size = new Vector2(260, 24);
-            okButton.relativePosition = new Vector3((int)(width - okButton.size.x) / 2,y);
-            okButton.textScale = 0.8f;
+            btn.text = p1;
+            btn.normalBgSprite = "ButtonMenu";
+            btn.hoveredBgSprite = "ButtonMenuHovered";
+            btn.disabledBgSprite = "ButtonMenuDisabled";
+            btn.focusedBgSprite = "ButtonMenuFocused";
+            btn.pressedBgSprite = "ButtonMenuPressed";
+            btn.size = new Vector2(220, 24);
+            btn.relativePosition = new Vector3(x, y - 3);
+            btn.textScale = 0.8f;
+        }
+
+        private void SetButton(UIButton btn, string p1, int y)
+        {
+            btn.text = p1;
+            btn.normalBgSprite = "ButtonMenu";
+            btn.hoveredBgSprite = "ButtonMenuHovered";
+            btn.disabledBgSprite = "ButtonMenuDisabled";
+            btn.focusedBgSprite = "ButtonMenuFocused";
+            btn.pressedBgSprite = "ButtonMenuPressed";
+            btn.size = new Vector2(220, 24);
+            btn.relativePosition = new Vector3((int)(width - btn.size.x) / 2, y);
+            btn.textScale = 0.8f;
 
         }
 
@@ -301,28 +340,29 @@ namespace Mapper
             totalRoadLabel.text = "Total: " + total + " / 32256";
         }
 
-        private void SetTextBox(UITextField scaleTextBox, string p, int x, int y)
+        private void SetTextBox(UITextField textbox, string p, int x, int y)
         {
-            scaleTextBox.relativePosition = new Vector3(x, y - 4);
-            scaleTextBox.horizontalAlignment = UIHorizontalAlignment.Left;
-            scaleTextBox.text = p;
-            scaleTextBox.textScale = 0.8f;
-            scaleTextBox.color = Color.black;
-            scaleTextBox.cursorBlinkTime = 0.45f;
-            scaleTextBox.cursorWidth = 1;
-            scaleTextBox.selectionBackgroundColor = new Color(233,201,148,255);
-            scaleTextBox.selectionSprite = "EmptySprite";
-            scaleTextBox.verticalAlignment = UIVerticalAlignment.Middle;
-            scaleTextBox.padding = new RectOffset(5, 0, 5, 0);
-            scaleTextBox.foregroundSpriteMode = UIForegroundSpriteMode.Fill;
-            scaleTextBox.normalBgSprite = "TextFieldPanel";
-            scaleTextBox.hoveredBgSprite = "TextFieldPanelHovered";
-            scaleTextBox.focusedBgSprite = "TextFieldPanel";
-            scaleTextBox.size = new Vector3(width - 120 - 30, 20);
-            scaleTextBox.isInteractive = true;
-            scaleTextBox.enabled = true;
-            scaleTextBox.readOnly = false;
-            scaleTextBox.builtinKeyNavigation = true;
+            textbox.relativePosition = new Vector3(x, y - 4);
+            textbox.horizontalAlignment = UIHorizontalAlignment.Left;
+            textbox.text = p;
+            textbox.textScale = 0.8f;
+            textbox.color = Color.black;
+            textbox.cursorBlinkTime = 0.45f;
+            textbox.cursorWidth = 1;
+            textbox.selectionBackgroundColor = new Color(233,201,148,255);
+            textbox.selectionSprite = "EmptySprite";
+            textbox.verticalAlignment = UIVerticalAlignment.Middle;
+            textbox.padding = new RectOffset(5, 0, 5, 0);
+            textbox.foregroundSpriteMode = UIForegroundSpriteMode.Fill;
+            textbox.normalBgSprite = "TextFieldPanel";
+            textbox.hoveredBgSprite = "TextFieldPanelHovered";
+            textbox.focusedBgSprite = "TextFieldPanel";
+            textbox.disabledBgSprite = "TextFieldPanelDisabled";
+            textbox.size = new Vector3(width - 120 - 30, 20);
+            textbox.isInteractive = true;
+            textbox.enabled = true;
+            textbox.readOnly = false;
+            textbox.builtinKeyNavigation = true;
             
         }
 
@@ -330,7 +370,7 @@ namespace Mapper
         {
             lbl.relativePosition = new Vector3(x, y);
             lbl.text = p;
-            lbl.textScale = 0.8f;
+            lbl.textScale = 0.7f;
             lbl.size = new Vector3(120,20);
         }
 
@@ -357,11 +397,12 @@ namespace Mapper
             if (createRoads)
             {
                 if (currentRoadTypeIndex < roadCheckbox.Count) {
-                    RoadTypes rt = roadCheckbox.Keys.ElementAt(currentRoadTypeIndex);
+                    OSMRoadTypes rt = roadCheckbox.Keys.ElementAt(currentRoadTypeIndex);
                     
                     if (roadCheckbox[rt].text == "☑" && currentIndex < roadMaker.osm.ways[rt].Count()) {
                         SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex, rt));
                         currentIndex += 1;
+                        
                         var instance = Singleton<NetManager>.instance;
                         makeErrorLabel.text = String.Format("RoadType {0} / {1}; road {2} / {3}. Nodes: {4}. Segments: {5}", currentRoadTypeIndex, roadMaker.osm.ways.Count(), currentIndex, roadMaker.osm.ways[rt].Count(), instance.m_nodeCount, instance.m_segmentCount);
                     } else {
@@ -379,6 +420,7 @@ namespace Mapper
                 makeErrorLabel.text += "Done.";
                 makeErrorLabel.textColor = Color.green;
                 createRoads = false;
+                reachedTheEnd = false;
             }
             base.Update();
         }

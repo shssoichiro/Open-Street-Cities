@@ -5,8 +5,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{FD1179BF-FB98-4DA6-BAFE-029198335DD1}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>OpenStreetCities</RootNamespace>
-    <AssemblyName>OpenStreetCities</AssemblyName>
+    <RootNamespace>Mapper</RootNamespace>
+    <AssemblyName>Mapper</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

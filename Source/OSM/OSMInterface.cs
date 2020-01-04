@@ -15,14 +15,14 @@ namespace Mapper.OSM
         public Dictionary<long, Vector2> nodes = new Dictionary<long, Vector2>();
         //public LinkedList<Way> ways = new LinkedList<Way>();
 
-        public Dictionary<RoadTypes, LinkedList<Way>> ways = new Dictionary<RoadTypes, LinkedList<Way>>();
+        public Dictionary<OSMRoadTypes, LinkedList<Way>> ways = new Dictionary<OSMRoadTypes, LinkedList<Way>>();
 
-        public Dictionary<RoadTypes, int> roadTypeCount = new Dictionary<RoadTypes, int>();
+        public Dictionary<OSMRoadTypes, int> roadTypeCount = new Dictionary<OSMRoadTypes, int>();
 
         double tolerance = 10;
         double curveError = 5;
 
-        public OSMInterface(string path, double scale, double tolerance, double curveTolerance, double tiles)
+        public OSMInterface(string path, double tolerance, double curveTolerance, double tiles)
         {
             this.tolerance = tolerance;
             this.curveError = curveTolerance;
@@ -36,12 +36,12 @@ namespace Mapper.OSM
             var osm = (osm)serializer.Deserialize(reader);
             reader.Dispose();
 
-            Init(osm, scale);
+            Init(osm);
         }
 
-        private void Init(osm osm, double scale)
+        private void Init(osm osm)
         {
-            mapping.InitBoundingBox(osm.bounds, scale);
+            mapping.InitBoundingBox(osm.bounds);
 
             nodes.Clear();
             foreach (var node in osm.node)
@@ -62,8 +62,9 @@ namespace Mapper.OSM
                 RoadTypes rt = RoadTypes.None;
                 List<long> points = null;
                 int layer = 0;
+                OSMRoadTypes osmrt = OSMRoadTypes.unclassified; 
 
-                string streetName = "unnamed";
+                string streetName = " ";
                 if (way != null && way.tag != null) {
                     foreach (var tag in way.tag) {
                         if (tag != null) {
@@ -73,12 +74,12 @@ namespace Mapper.OSM
                         }
                     }
                 }
-                if (mapping.Mapped(way, ref points, ref rt, ref layer))
+                if (mapping.Mapped(way, ref points, ref rt, ref osmrt, ref layer))
                 {
-                    if (roadTypeCount.ContainsKey(rt)) {
-                        roadTypeCount[rt]+=points.Count;
+                    if (roadTypeCount.ContainsKey(osmrt)) {
+                        roadTypeCount[osmrt] +=points.Count;
                     } else {
-                        roadTypeCount.Add(rt, points.Count);
+                        roadTypeCount.Add(osmrt, points.Count);
                     }
 
                     var currentList = new List<long>();
@@ -93,11 +94,11 @@ namespace Mapper.OSM
                         {
                             if (currentList.Count() > 1 || currentList.Contains(pp))
                             {
-                                if (!ways.ContainsKey(rt)) {
-                                    ways.Add(rt, new LinkedList<Way>());
+                                if (!ways.ContainsKey(osmrt)) {
+                                    ways.Add(osmrt, new LinkedList<Way>());
                                 }
 
-                                ways[rt].AddLast(new Way(currentList, rt, layer, streetName));
+                                ways[osmrt].AddLast(new Way(currentList, rt, layer, streetName));
                                 currentList = new List<long>();
                             }
                         }
@@ -105,26 +106,25 @@ namespace Mapper.OSM
                     }
                     if (currentList.Count() > 1)
                     {
-                        if (!ways.ContainsKey(rt)) {
-                            ways.Add(rt, new LinkedList<Way>());
+                        if (!ways.ContainsKey(osmrt)) {
+                            ways.Add(osmrt, new LinkedList<Way>());
                         }
-                        ways[rt].AddLast(new Way(currentList, rt, layer, streetName));
+                        ways[osmrt].AddLast(new Way(currentList, rt, layer, streetName));
                     }
                 }
             }
             
-            /*var intersection = new Dictionary<long, List<Way>>();
-            foreach (var ww in ways)
-            {
-                foreach (var pp in ww.nodes)
-                {
-                    if (!intersection.ContainsKey(pp))
-                    {
-                        intersection.Add(pp, new List<Way>());
+            var intersection = new Dictionary<long, List<Way>>();
+            foreach (var rt in ways) {
+                foreach (var ww in ways[rt.Key]) {
+                    foreach (var pp in ww.nodes) {
+                        if (!intersection.ContainsKey(pp)) {
+                            intersection.Add(pp, new List<Way>());
+                        }
+                        intersection[pp].Add(ww);
                     }
-                    intersection[pp].Add(ww);
                 }
-            }*/
+            }
             
             /*var allSplits = new Dictionary<Way, List<int>>();
             foreach (var inter in intersection)
@@ -215,7 +215,7 @@ namespace Mapper.OSM
 
         private void SimplifyWays()
         {
-            RoadTypes[] rtArr = new RoadTypes[ways.Count];
+            OSMRoadTypes[] rtArr = new OSMRoadTypes[ways.Count];
             ways.Keys.CopyTo(rtArr, 0);
 
             foreach (var rt in rtArr) {
