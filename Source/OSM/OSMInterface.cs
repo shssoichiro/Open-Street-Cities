@@ -16,8 +16,7 @@ namespace Mapper.OSM
         //public LinkedList<Way> ways = new LinkedList<Way>();
 
         public Dictionary<OSMRoadTypes, LinkedList<Way>> ways = new Dictionary<OSMRoadTypes, LinkedList<Way>>();
-
-        public Dictionary<OSMRoadTypes, int> roadTypeCount = new Dictionary<OSMRoadTypes, int>();
+        public SortedDictionary<OSMRoadTypes, int> roadTypeCount = new SortedDictionary<OSMRoadTypes, int>();
 
         double tolerance = 10;
         double curveError = 5;
@@ -57,6 +56,7 @@ namespace Mapper.OSM
             }
 
             ways.Clear();
+            roadTypeCount.Clear();
             foreach (var way in osm.way)
             {
                 RoadTypes rt = RoadTypes.None;

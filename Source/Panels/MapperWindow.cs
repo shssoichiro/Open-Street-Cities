@@ -108,11 +108,11 @@ namespace Mapper
             y += vertPadding;
             
             SetLabel(toleranceLabel, "Tolerance", x, y);
-            SetTextBox(toleranceInput, "6", x + 120, y);
+            SetTextBox(toleranceInput, "2", x + 120, y);
             y += vertPadding;
 
             SetLabel(curveToleranceLabel, "Curve Tolerance", x, y);
-            SetTextBox(curveToleranceInput, "6", x + 120, y);
+            SetTextBox(curveToleranceInput, "2", x + 120, y);
             y += vertPadding;
             
             SetLabel(tilesLabel, "Tiles to Boundary", x, y);
@@ -152,6 +152,15 @@ namespace Mapper
         }
         private void DiscardMapButton_eventClick(UIComponent component, UIMouseEventParameter eventParam) {
             enableOSMImportFields();
+
+            foreach (var rt in roadCheckbox) {
+                rt.Value.parent.RemoveUIComponent(rt.Value);
+            }
+            roadCheckbox.Clear();
+            foreach(var rt in roadCheckboxLabel) {
+                rt.Value.parent.RemoveUIComponent(rt.Value);
+            }
+            roadCheckboxLabel.Clear();
         }
 
         private void LoadMapButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
@@ -180,8 +189,7 @@ namespace Mapper
                 errorLabel.text = "OSM file loaded: " + totalCount + " roads, (" + osm.ways.Count.ToString() + " types) found.";
 
                 roadMaker = new RoadMaker2(this.osm);
-
-                roadCheckbox.Clear();
+                
                 int y = roadCheckBoxStartY;
                 int x = 15;
 
@@ -201,7 +209,7 @@ namespace Mapper
                         }
                         chk.textScale = .7f;
 
-                        SetCheckBox(chk, true, lbl, x, y);
+                        SetCheckBox(chk, false, lbl, x, y);
                         x += 16;
                         SetLabel(lbl, osmrt.Key.ToString() + "("+ osmrt.Value.ToString()+" nodes)", x, y);
                         lbl.textScale = .6f;
@@ -232,37 +240,42 @@ namespace Mapper
             }
         }
         private void disableButton(UIButton btn) {
-            btn.Disable();
+            btn.isEnabled = false;
             btn.textColor = Color.gray;
             btn.normalBgSprite = "ButtonMenuDisabled";
+            btn.opacity = .333f; 
         }
         private void enableButton(UIButton btn) {
-            btn.Disable();
+            btn.isEnabled = true;
             btn.textColor = Color.white;
             btn.normalBgSprite = "ButtonMenu";
+            btn.opacity = 1f;
+        }
+
+        private void disableInput(UITextField lbl) {
+            lbl.readOnly = true;
+            lbl.textColor = Color.gray;
+        }
+        private void enableInput(UITextField lbl) {
+            lbl.readOnly = false;
+            lbl.textColor = Color.white;
         }
 
         private void disableOSMImportFields() {
-            
-            pathInput.Disable();
-            pathLabel.Disable();
-
-            toleranceInput.Disable();
-            curveToleranceInput.Disable();
-            tilesInput.Disable();
+            disableInput(pathInput);
+            disableInput(toleranceInput);
+            disableInput(curveToleranceInput); 
+            //disableInput(tilesInput);
 
             enableButton(makeButton);
             enableButton(discardMapButton);
             disableButton(loadMapButton);
         }
         private void enableOSMImportFields() {
-            loadMapButton.Enable();
-            pathInput.Enable();
-            pathLabel.Enable();
-
-            toleranceInput.Enable();
-            curveToleranceInput.Enable();
-            tilesInput.Enable();
+            enableInput(pathInput);
+            enableInput(toleranceInput);
+            enableInput(curveToleranceInput);
+            //enableInput(tilesInput);
 
             disableButton(makeButton); 
             disableButton(discardMapButton);
