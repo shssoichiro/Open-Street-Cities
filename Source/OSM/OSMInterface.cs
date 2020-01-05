@@ -13,7 +13,6 @@ namespace Mapper.OSM
         private readonly FitCurves fc;
 
         public Dictionary<long, Vector2> nodes = new Dictionary<long, Vector2>();
-        //public LinkedList<Way> ways = new LinkedList<Way>();
 
         public Dictionary<OSMRoadTypes, LinkedList<Way>> ways = new Dictionary<OSMRoadTypes, LinkedList<Way>>();
         public SortedDictionary<OSMRoadTypes, int> roadTypeCount = new SortedDictionary<OSMRoadTypes, int>();
@@ -77,7 +76,7 @@ namespace Mapper.OSM
                 if (mapping.Mapped(way, ref points, ref rt, ref osmrt, ref layer))
                 {
                     if (roadTypeCount.ContainsKey(osmrt)) {
-                        roadTypeCount[osmrt] +=points.Count;
+                        roadTypeCount[osmrt] += points.Count;
                     } else {
                         roadTypeCount.Add(osmrt, points.Count);
                     }

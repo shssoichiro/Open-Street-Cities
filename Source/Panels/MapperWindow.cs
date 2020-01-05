@@ -154,11 +154,11 @@ namespace Mapper
             enableOSMImportFields();
 
             foreach (var rt in roadCheckbox) {
-                rt.Value.parent.RemoveUIComponent(rt.Value);
+                Destroy(rt.Value);
             }
             roadCheckbox.Clear();
             foreach(var rt in roadCheckboxLabel) {
-                rt.Value.parent.RemoveUIComponent(rt.Value);
+                Destroy(rt.Value);
             }
             roadCheckboxLabel.Clear();
         }
@@ -193,6 +193,11 @@ namespace Mapper
                 int y = roadCheckBoxStartY;
                 int x = 15;
 
+                SortedDictionary<OSMRoadTypes, int> roadTypeCount = new SortedDictionary<OSMRoadTypes, int>();
+                foreach (var ri in roadMaker.netInfos) {
+                        ri.Value.m_nodes.Count();
+                }
+                
                 if (roadMaker != null && roadMaker.netInfos != null) {
                     int rtIndex = 0;
                     foreach (var osmrt in osm.roadTypeCount) {
@@ -211,7 +216,15 @@ namespace Mapper
 
                         SetCheckBox(chk, false, lbl, x, y);
                         x += 16;
-                        SetLabel(lbl, osmrt.Key.ToString() + "("+ osmrt.Value.ToString()+" nodes)", x, y);
+
+                        int c = 0;
+                        if (roadMaker.osm.ways.ContainsKey(osmrt.Key)) {
+                            foreach (var n in osm.ways[osmrt.Key]) {
+                                c += n.nodes.Count();
+                            }
+                        }
+
+                        SetLabel(lbl, osmrt.Key.ToString() + "("+ c + " nodes)", x, y);
                         lbl.textScale = .6f;
                         
                         rtIndex++;
@@ -417,7 +430,7 @@ namespace Mapper
                         currentIndex += 1;
                         
                         var instance = Singleton<NetManager>.instance;
-                        makeErrorLabel.text = String.Format("RoadType {0} / {1}; road {2} / {3}. Nodes: {4}. Segments: {5}", currentRoadTypeIndex, roadMaker.osm.ways.Count(), currentIndex, roadMaker.osm.ways[rt].Count(), instance.m_nodeCount, instance.m_segmentCount);
+                        makeErrorLabel.text = String.Format("RoadType {0} / {1}; {2} {3} / {4}. Nodes: {5}. Segments: {6}", currentRoadTypeIndex, roadMaker.osm.ways.Count(), rt.ToString(), currentIndex, roadMaker.osm.ways[rt].Count(), instance.m_nodeCount, instance.m_segmentCount);
                     } else {
                         // end of current roadtype
                         currentRoadTypeIndex++;
