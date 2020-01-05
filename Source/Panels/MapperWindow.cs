@@ -24,6 +24,7 @@ namespace Mapper
 
         UITextField tilesInput;
         UILabel tilesLabel;
+        UILabel tilesHintLabel;
 
         UITextField curveToleranceInput;
         UILabel curveToleranceLabel;
@@ -50,6 +51,9 @@ namespace Mapper
         int currentIndex;
         int currentRoadTypeIndex;
 
+        const string CHECKBOX_UNCHECKED = "☐";
+        const string CHECKBOX_CHECKED = "☑";
+
         public override void Awake()
         {
             this.isInteractive = true;
@@ -70,7 +74,7 @@ namespace Mapper
 
             tilesInput = AddUIComponent<UITextField>();
             tilesLabel = AddUIComponent<UILabel>();
-
+            tilesHintLabel = AddUIComponent<UILabel>();
             loadMapButton = AddUIComponent<UIButton>();
             discardMapButton = AddUIComponent<UIButton>();
             checkRoadTypesLabel = AddUIComponent<UILabel>();
@@ -108,27 +112,36 @@ namespace Mapper
             y += vertPadding;
             
             SetLabel(toleranceLabel, "Tolerance", x, y);
-            SetTextBox(toleranceInput, "2", x + 120, y);
+            SetTextBox(toleranceInput, "0.5", x + 120, y);
             y += vertPadding;
 
             SetLabel(curveToleranceLabel, "Curve Tolerance", x, y);
-            SetTextBox(curveToleranceInput, "2", x + 120, y);
+            SetTextBox(curveToleranceInput, "0.5", x + 120, y);
             y += vertPadding;
             
             SetLabel(tilesLabel, "Tiles to Boundary", x, y);
-            SetTextBox(tilesInput, "2.5", x + 120, y);
+            SetTextBox(tilesInput, "4.5", x + 120, y);
+
+            y += 20;
+            SetLabel(tilesHintLabel, "e.g. \"2.5\" for 5x5=25 tiles; \"4.5\" for 9x9=81 tiles", x + 125, y);
+            tilesHintLabel.textScale = .6f;
+            tilesHintLabel.textColor = Color.gray;
+
             y += vertPadding;
             
             SetButton(loadMapButton, "Load OSM from file", x, y);
             loadMapButton.eventClick += LoadMapButton_eventClick;
 
-            SetButton(discardMapButton, "Discard OSM Data", x + 235, y);
+            SetButton(discardMapButton, "Discard OSM data", x + 235, y);
             discardMapButton.eventClick += DiscardMapButton_eventClick;
             disableButton(discardMapButton);
 
             y += vertPadding;
 
-            SetLabel(errorLabel, "No OSM data loaded.", x, y);
+            SetLabel(errorLabel, "No OSM data loaded." + Environment.NewLine + Environment.NewLine + 
+                                 "NOTE: The application will probably appear unresponsive while loading the data. " + Environment.NewLine + 
+                                 "Please be patient, loading might take several minutes, depending on the amount" + Environment.NewLine + 
+                                 "of data.", x, y);
             errorLabel.textScale = 0.6f;
             y += vertPadding * 2;
             
@@ -188,18 +201,13 @@ namespace Mapper
                 foreach (var rt in osm.ways) {
                     totalCount += rt.Value.Count;
                 }
-                errorLabel.text = "OSM file loaded: " + totalCount + " roads, (" + osm.ways.Count.ToString() + " types) found.";
+                errorLabel.text = "OSM file loaded: " + totalCount + " roads (" + osm.ways.Count.ToString() + " types) found.";
 
                 roadMaker = new RoadMaker2(this.osm);
                 
                 int y = roadCheckBoxStartY;
                 int x = 15;
 
-                SortedDictionary<OSMRoadTypes, int> roadTypeCount = new SortedDictionary<OSMRoadTypes, int>();
-                foreach (var ri in roadMaker.netInfos) {
-                        ri.Value.m_nodes.Count();
-                }
-                
                 if (roadMaker != null && roadMaker.netInfos != null) {
                     int rtIndex = 0;
                     foreach (var osmrt in osm.roadTypeCount) {
@@ -225,6 +233,7 @@ namespace Mapper
                                 c += n.nodes.Count();
                             }
                         }
+                        osm.roadTypeCount[osmrt.Key] = c;
 
                         SetLabel(lbl, osmrt.Key.ToString() + "("+ c + " nodes)", x, y);
                         lbl.textScale = .6f;
@@ -240,7 +249,7 @@ namespace Mapper
                     x = 250;
                     y += 12;
                     
-                    SetLabel(totalRoadLabel, "Total: 0 / 32256", x, y);
+                    SetLabel(totalRoadLabel, "", x, y);
                     totalRoadLabel.textScale = .7f;
 
                 }
@@ -330,14 +339,13 @@ namespace Mapper
             check.relativePosition = new Vector3(x, y);
             check.color = Color.white;
             check.size = new Vector2(13, 13);
-            check.text = (isChecked ? "☑" : "☐");
+            check.text = (isChecked ? CHECKBOX_CHECKED : CHECKBOX_UNCHECKED);
             check.Show();
             check.enabled = true;
 
             MouseEventHandler checkClick = (component, param) => {
                 isChecked = !isChecked;
-                check.text = (isChecked ? "☑" : "☐");
-
+                check.text = (isChecked ? CHECKBOX_CHECKED : CHECKBOX_UNCHECKED);
                 updateLimits(); 
             };
 
@@ -347,25 +355,39 @@ namespace Mapper
         }
         
         private void updateLimits() {
-            int maxNodes = 32256;
-            int total = 0;
+            int maxNodes = 32767;
+            int buildNodeCount = 0;
+            int totalNodeCount = 0;
+
+            var instance = Singleton<NetManager>.instance;
+            int currentNodeCount = instance.m_nodeCount;
 
             roadMaker.clearEnabledRoadTypes();
             foreach (var rt in osm.roadTypeCount) {
-                if (roadCheckbox.ContainsKey(rt.Key) && roadCheckbox[rt.Key].text == "☑") { // @todo: improve checkboxes!
-                    total += rt.Value;
+                if (roadCheckbox.ContainsKey(rt.Key) && roadCheckbox[rt.Key].text == CHECKBOX_CHECKED) { // @todo: improve checkboxes!
+                    buildNodeCount += rt.Value;
                     roadMaker.addEnabledRoadTypes(rt.Key);
                 }
             }
-
-            if (total > maxNodes) {
+            totalNodeCount = currentNodeCount + buildNodeCount;
+            if (totalNodeCount > maxNodes) {
                 totalRoadLabel.textColor = Color.red;
-            } else if(total > maxNodes * .8f) {
+            } else if(totalNodeCount > maxNodes * .9f) {
                 totalRoadLabel.textColor = new Color(1f, 1f, 0f);
             } else {
                 totalRoadLabel.textColor = Color.white;
             }
-            totalRoadLabel.text = "Total: " + total + " / 32256";
+            
+            if (buildNodeCount > 0) {
+                totalRoadLabel.text = "Current nodes:        " + currentNodeCount + Environment.NewLine +
+                                      "New nodes:               " + buildNodeCount + Environment.NewLine +
+                                      "Estimated count:   " + totalNodeCount + Environment.NewLine + 
+                                      "Node limit:                " + maxNodes;
+            } else {
+                totalRoadLabel.text = "Current nodes:        " + currentNodeCount + Environment.NewLine + 
+                                      "Node limit:                " + maxNodes.ToString();
+            }
+            
         }
 
         private void SetTextBox(UITextField textbox, string p, int x, int y)
@@ -419,6 +441,12 @@ namespace Mapper
             }
         }
 
+        private void setCheckboxBuilt(UILabel chk, UILabel lbl) {
+            chk.SimulateClick();
+            lbl.textColor = Color.gray;
+            chk.textColor = Color.gray;
+        }
+        
         public override void Update()
         {
             Boolean reachedTheEnd = false;
@@ -427,7 +455,7 @@ namespace Mapper
                 if (currentRoadTypeIndex < roadCheckbox.Count) {
                     OSMRoadTypes rt = roadCheckbox.Keys.ElementAt(currentRoadTypeIndex);
                     
-                    if (roadCheckbox[rt].text == "☑" && currentIndex < roadMaker.osm.ways[rt].Count()) {
+                    if (roadCheckbox[rt].text == CHECKBOX_CHECKED && currentIndex < roadMaker.osm.ways[rt].Count()) {
                         SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex, rt));
                         currentIndex += 1;
                         
@@ -435,17 +463,24 @@ namespace Mapper
                         makeErrorLabel.text = String.Format("RoadType {0} / {1}; {2} {3} / {4}. Nodes: {5}. Segments: {6}", currentRoadTypeIndex, roadMaker.osm.ways.Count(), rt.ToString(), currentIndex, roadMaker.osm.ways[rt].Count(), instance.m_nodeCount, instance.m_segmentCount);
                     } else {
                         // end of current roadtype
+                        if (currentIndex > 0) {
+                            setCheckboxBuilt(roadCheckbox[rt], roadCheckboxLabel[rt]);
+                        }
                         currentRoadTypeIndex++;
                         currentIndex = 0;
                     }
                 } else {
                     reachedTheEnd = true;
+                    updateLimits();
                 }
             }
 
             if (roadMaker != null && reachedTheEnd)
             {
-                makeErrorLabel.text += "Done.";
+                makeErrorLabel.text += Environment.NewLine + "DONE. You can still add different road-types!" + Environment.NewLine + Environment.NewLine +
+                                       "HINT: It is recommended to disable this mod before playing the city due to" + Environment.NewLine +
+                                       "performance issues. This hint will be removed, if the problems are fixed.";
+                    ;
                 makeErrorLabel.textColor = Color.green;
                 createRoads = false;
                 reachedTheEnd = false;
@@ -453,22 +488,5 @@ namespace Mapper
             base.Update();
         }
     }
-
-    public class UICustomCheckbox3 : UISprite
-    {
-        public bool IsChecked { get; set; }
-
-        public override void Start()
-        {
-            base.Start();
-            IsChecked = true;
-            spriteName = "AchievementCheckedTrue";
-        }
-
-        public override void Update()
-        {
-            base.Update();
-            spriteName = IsChecked ? "AchievementCheckedTrue" : "AchievementCheckedFalse";
-        }
-    }    
+    
 }

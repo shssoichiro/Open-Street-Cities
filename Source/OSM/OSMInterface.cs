@@ -17,8 +17,8 @@ namespace Mapper.OSM
         public Dictionary<OSMRoadTypes, LinkedList<Way>> ways = new Dictionary<OSMRoadTypes, LinkedList<Way>>();
         public SortedDictionary<OSMRoadTypes, int> roadTypeCount = new SortedDictionary<OSMRoadTypes, int>();
 
-        double tolerance = 10;
-        double curveError = 5;
+        double tolerance = .1f;
+        double curveError = .1f;
 
         public OSMInterface(string path, double tolerance, double curveTolerance, double tiles)
         {

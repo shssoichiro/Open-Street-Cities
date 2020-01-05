@@ -45,7 +45,6 @@ namespace Mapper
             enabledRoadTypes.Add(rt);
         }
 
-
         public IEnumerator MakeRoad(int p, OSMRoadTypes rt)
         {
             var nm = Singleton<NetManager>.instance;
