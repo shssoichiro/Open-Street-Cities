@@ -122,7 +122,7 @@ namespace Mapper
             SetButton(loadMapButton, "Load OSM from file", x, y);
             loadMapButton.eventClick += LoadMapButton_eventClick;
 
-            SetButton(discardMapButton, "Discard", x + 235, y);
+            SetButton(discardMapButton, "Discard OSM Data", x + 235, y);
             discardMapButton.eventClick += DiscardMapButton_eventClick;
             disableButton(discardMapButton);
 
@@ -161,6 +161,8 @@ namespace Mapper
                 Destroy(rt.Value);
             }
             roadCheckboxLabel.Clear();
+
+            errorLabel.text = "No OSM data loaded.";
         }
 
         private void LoadMapButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
@@ -176,7 +178,7 @@ namespace Mapper
             }
             try
             {
-                errorLabel.text = "Loading OSM file ... (application might look frozen)";
+                errorLabel.text = "Loading OSM file ...";
                 
                 this.osm = new OSMInterface(pathInput.text.Trim(), double.Parse(toleranceInput.text.Trim()), double.Parse(curveToleranceInput.text.Trim()), double.Parse(tilesInput.text.Trim()));
                 currentIndex = 0;

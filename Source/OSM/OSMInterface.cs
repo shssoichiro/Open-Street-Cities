@@ -63,7 +63,7 @@ namespace Mapper.OSM
                 int layer = 0;
                 OSMRoadTypes osmrt = OSMRoadTypes.unclassified; 
 
-                string streetName = " ";
+                string streetName = "noname";
                 if (way != null && way.tag != null) {
                     foreach (var tag in way.tag) {
                         if (tag != null) {
