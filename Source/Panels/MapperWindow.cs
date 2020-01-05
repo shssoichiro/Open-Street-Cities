@@ -289,7 +289,7 @@ namespace Mapper
             disableInput(pathInput);
             disableInput(toleranceInput);
             disableInput(curveToleranceInput); 
-            //disableInput(tilesInput);
+            disableInput(tilesInput);
 
             enableButton(makeButton);
             enableButton(discardMapButton);
@@ -299,7 +299,7 @@ namespace Mapper
             enableInput(pathInput);
             enableInput(toleranceInput);
             enableInput(curveToleranceInput);
-            //enableInput(tilesInput);
+            enableInput(tilesInput);
 
             disableButton(makeButton); 
             disableButton(discardMapButton);
@@ -479,8 +479,7 @@ namespace Mapper
             {
                 makeErrorLabel.text += Environment.NewLine + "DONE. You can still add different road-types!" + Environment.NewLine + Environment.NewLine +
                                        "HINT: It is recommended to disable this mod before playing the city due to" + Environment.NewLine +
-                                       "performance issues. This hint will be removed, if the problems are fixed.";
-                    ;
+                                       "performance issues. This hint will be removed, if the problem is fixed.";
                 makeErrorLabel.textColor = Color.green;
                 createRoads = false;
                 reachedTheEnd = false;
