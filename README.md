@@ -1,4 +1,4 @@
-# Open Cities Map
+# Open Steet Cities
 forked from https://github.com/adur1990/Open-Cities-Map
 
 Auto-generate roads in Cities:Skylines with openstreetmap data.
