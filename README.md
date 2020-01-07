@@ -1,7 +1,7 @@
-# Open Steet Cities
+# OpenSteetCities mod for Cities:Skylines
 forked from https://github.com/adur1990/Open-Cities-Map
 
-Auto-generate roads in Cities:Skylines with openstreetmap data.
+Automatically build roads in Cities:Skylines according to openstreetmap data.
 
 Added new features: 
 - name streets
