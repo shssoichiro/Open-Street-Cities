@@ -1,4 +1,4 @@
-# OpenSteetCities mod for Cities:Skylines
+# OpenStreetCities mod for Cities:Skylines
 forked from https://github.com/adur1990/Open-Cities-Map
 
 Automatically build roads in Cities:Skylines according to openstreetmap data.
