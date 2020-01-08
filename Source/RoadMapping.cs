@@ -107,8 +107,8 @@ namespace Mapper
         //private Vector2 startLatLon = new Vector2(float.MaxValue, float.MaxValue);
         private Vector2 middleLatLon = new Vector2(float.MinValue, float.MinValue);
         //private Vector2 endLatLon;
-        double scaleX;
-        double scaleY;
+        public double scaleX;
+        public double scaleY;
 
         public RoadMapping(double tiles)
         {
@@ -393,14 +393,14 @@ namespace Mapper
         //    endLatLon = new Vector2(Math.Max(endLatLon.x, (float)node.lon), Math.Max(endLatLon.y, (float)node.lat));
         //}
 
-        public void InitBoundingBox(osmBounds bounds)
+        public void InitBoundingBox(osmBounds bounds, double scale)
         {
             this.middleLatLon = new Vector2((float)(bounds.minlon + bounds.maxlon) / 2f, (float)(bounds.minlat + bounds.maxlat) / 2f);
             var lat = Deg2rad(this.middleLatLon.y);
             var radius = WGS84EarthRadius(lat);
             var pradius = radius * Math.Cos(lat);
-            scaleX =  GameSizeGameCoordinates / Rad2deg(GameSizeMetres / pradius);
-            scaleY = GameSizeGameCoordinates / Rad2deg(GameSizeMetres / radius);
+            scaleX = scale * GameSizeGameCoordinates / Rad2deg(GameSizeMetres / pradius);
+            scaleY = scale * GameSizeGameCoordinates / Rad2deg(GameSizeMetres / radius);
 
         }
 
