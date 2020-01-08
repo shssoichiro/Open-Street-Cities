@@ -57,19 +57,19 @@ namespace Mapper
             var way = osm.ways[rt].ElementAt(p);
             NetInfo ni = null;
             
-            if (way.roadTypes == RoadTypes.None)  //  || enabledRoadTypes.IndexOf(way.roadTypes) < 0
+            if (way.roadType == RoadTypes.None)  //  || enabledRoadTypes.IndexOf(way.roadTypes) < 0
             {
                 yield break;
             }
 
-            if (netInfos.ContainsKey(way.roadTypes))
+            if (netInfos.ContainsKey(way.roadType))
             {
-                ni = netInfos[way.roadTypes];
+                ni = netInfos[way.roadType];
                 
             }
             else
             {
-                Debug.Log("Failed to find net info: " + way.roadTypes.ToString());
+                Debug.Log("Failed to find net info: " + way.roadType.ToString());
                 yield return null;
             }
             float elevation = way.layer;

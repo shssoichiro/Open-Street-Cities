@@ -2,6 +2,7 @@
 using System.Linq;
 using UnityEngine;
 
+using Mapper.OSM;
 namespace Mapper {
 
     public class Segment
@@ -32,7 +33,8 @@ namespace Mapper {
         public List<long> nodes = new List<long>();
         public List<Segment> segments;
 
-        public RoadTypes roadTypes;
+        public RoadTypes roadType;
+        public OSMRoadTypes osmRoadType;
         public int layer;
         public string name;
 
@@ -46,12 +48,13 @@ namespace Mapper {
             get { return nodes[nodes.Count()-1]; }
         }
 
-        public Way(List<long> points, RoadTypes rt,int layer, string name)
+        public Way(List<long> points, RoadTypes rt, OSMRoadTypes osmrt, int layer, string name)
         {
-            this.roadTypes = rt;
+            this.roadType = rt;
             this.nodes = points;
             this.layer = layer;
             this.name = name;
+            this.osmRoadType = osmrt;
         }
 
         internal void Update(List<Segment> list)

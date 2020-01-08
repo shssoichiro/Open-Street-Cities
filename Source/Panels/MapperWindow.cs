@@ -47,7 +47,7 @@ namespace Mapper
 
         OSMInterface osm;
 
-        int currentMakeSpeed = 20;   // roads per frame
+        int currentMakeSpeed = 5;   // roads per frame
 
         int roadCheckBoxStartY = 0;
 
@@ -136,7 +136,7 @@ namespace Mapper
             SetTextBox(curveToleranceInput, "0.5", x + 120, y);
             y += vertPadding;
 
-            SetLabel(scaleLabel, "Scale", x, y);
+            SetLabel(scaleLabel, "Scale factor", x, y);
             SetTextBox(scaleInput, "1", x + 120, y);
             y += vertPadding;
 
@@ -170,7 +170,7 @@ namespace Mapper
             y += 18;
 
             roadCheckBoxStartY = y;
-            y += 200;
+            y += 220;
 
             //SetLabel(makeSpeedLabel, "Roads per frame", x, y);
             //SetTextBox(makeSpeedInput, "3", x + 120, y);
@@ -267,12 +267,12 @@ namespace Mapper
                         osm.roadTypeCount[osmrt.Key] = c;
 
                         SetLabel(lbl, osmrt.Key.ToString() + "("+ c + " nodes)", x, y);
-                        lbl.textScale = .6f;
+                        lbl.textScale = .7f;
                         
                         rtIndex++;
                         if (rtIndex % 2 == 0) {
                             x = 15;
-                            y += 12;
+                            y += 14;
                         } else {
                             x = 15 + 250 * (rtIndex % 2);
                         }
@@ -425,11 +425,12 @@ namespace Mapper
                                       "Node limit:                " + maxNodes.ToString();
             }
             if (!createRoads) {
-                enableButton(makeButton);
-                //enableInput(makeSpeedInput);
+                if (buildNodeCount > 0) {
+                    enableButton(makeButton);
+                }
+            } else {
+                disableButton(makeButton);
             }
-
-
         }
 
         private void SetTextBox(UITextField textbox, string p, int x, int y)
@@ -472,7 +473,7 @@ namespace Mapper
             {
                 currentIndex = 0;
                 currentRoadTypeIndex = 0;
-                createRoads = !createRoads;
+                createRoads = true;
                 if (createRoads) {
                     makeErrorLabel.text = "Create roads ... ";
                     makeErrorLabel.textColor = Color.white;
@@ -518,7 +519,6 @@ namespace Mapper
             Boolean reachedTheEnd = false;
             if (createRoads)
             {
-                for (int i = 0; i < currentMakeSpeed; i++) {
                     if (currentRoadTypeIndex < roadCheckbox.Count) {
                         OSMRoadTypes rt = roadCheckbox.Keys.ElementAt(currentRoadTypeIndex);
                         int way_count = roadMaker.osm.ways[rt].Count();
@@ -540,10 +540,8 @@ namespace Mapper
                     } else {
                         reachedTheEnd = true;
                         updateLimits();
-                        break;
                     }
 
-                }
             }
 
             if (roadMaker != null && reachedTheEnd)

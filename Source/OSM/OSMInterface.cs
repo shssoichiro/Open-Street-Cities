@@ -14,8 +14,10 @@ namespace Mapper.OSM
 
         public Dictionary<long, Vector2> nodes = new Dictionary<long, Vector2>();
 
+        public List<Way> allWays = new List<Way>();
         public Dictionary<OSMRoadTypes, LinkedList<Way>> ways = new Dictionary<OSMRoadTypes, LinkedList<Way>>();
         public SortedDictionary<OSMRoadTypes, int> roadTypeCount = new SortedDictionary<OSMRoadTypes, int>();
+        
 
         double tolerance = .1f;
         double curveError = .1f;
@@ -98,7 +100,7 @@ namespace Mapper.OSM
                                     ways.Add(osmrt, new LinkedList<Way>());
                                 }
 
-                                ways[osmrt].AddLast(new Way(currentList, rt, layer, streetName));
+                                ways[osmrt].AddLast(new Way(currentList, rt, osmrt, layer, streetName));
                                 currentList = new List<long>();
                             }
                         }
@@ -109,46 +111,41 @@ namespace Mapper.OSM
                         if (!ways.ContainsKey(osmrt)) {
                             ways.Add(osmrt, new LinkedList<Way>());
                         }
-                        ways[osmrt].AddLast(new Way(currentList, rt, layer, streetName));
+                        ways[osmrt].AddLast(new Way(currentList, rt, osmrt, layer, streetName));
                     }
                 }
             }
-            
-            var intersection = new Dictionary<OSMRoadTypes, Dictionary<long, List<Way>>>();
-            var allSplits = new Dictionary<OSMRoadTypes, Dictionary<Way, List<int>>>();
-            foreach (var rt in ways) {
-                foreach (var ww in ways[rt.Key]) {
-                    foreach (var pp in ww.nodes) {
-                        if (!intersection.ContainsKey(rt.Key)) {
-                            intersection.Add(rt.Key, new Dictionary<long, List<Way>>());
-                        }
-                        if (!intersection[rt.Key].ContainsKey(pp)) {
-                            intersection[rt.Key].Add(pp, new List<Way>());
-                        }
-                        intersection[rt.Key][pp].Add(ww);
-                    }
-                }
-            }
-            foreach (var rt in ways) {
-                foreach (var inter in intersection[rt.Key]) {
-                    if (inter.Value.Count > 1) {
-                        foreach (var way in inter.Value) {
-                            if (!allSplits.ContainsKey(rt.Key)) {
-                                allSplits.Add(rt.Key, new Dictionary<Way, List<int>>());
-                            }
 
-                            if (!allSplits[rt.Key].ContainsKey(way)) {
-                                allSplits[rt.Key].Add(way, new List<int>());
-                            }
-                            allSplits[rt.Key][way].Add(way.nodes.IndexOf(inter.Key));
+            this.allWays = new List<Way>();
+            foreach (var rt in ways) {
+                foreach (Way way in ways[rt.Key]) {
+                    allWays.Add(way);
+                }
+            }
+
+            var intersection = new Dictionary<long, List<Way>>();
+            var allSplits = new Dictionary<Way, List<int>>();
+            
+            foreach (var ww in allWays) {
+                foreach (var pp in ww.nodes) {
+                    if (!intersection.ContainsKey(pp)) {
+                        intersection.Add(pp, new List<Way>());
+                    }
+                    intersection[pp].Add(ww);
+                }
+            }
+            foreach (var inter in intersection) {
+                if (inter.Value.Count > 1) {
+                    foreach (var way in inter.Value) {
+                        if (!allSplits.ContainsKey(way)) {
+                            allSplits.Add(way, new List<int>());
                         }
+                        allSplits[way].Add(way.nodes.IndexOf(inter.Key));
                     }
                 }
             }
-            foreach (var rt in allSplits) {
-                foreach (var waySplits in allSplits[rt.Key]) {
-                    SplitWay(waySplits.Key, rt.Key, waySplits.Value);
-                }
+            foreach (var waySplits in allSplits) {
+                SplitWay(waySplits.Key, waySplits.Value);
             }
             
             BreakWaysWhichAreTooLong();
@@ -158,59 +155,59 @@ namespace Mapper.OSM
 
         private void BreakWaysWhichAreTooLong()
         {
+            
             var allSplits = new Dictionary<Way, List<int>>();
-            foreach (var rt in ways) {
-                foreach (Way way in ways[rt.Key]) {
-                    
-                    float length = 0f;
-                    if (way.nodes.Count() > 1) {
-                        for (var i = 0; i < way.nodes.Count() - 1; i += 1) {
-                            length += (nodes[way.nodes[i + 1]] - nodes[way.nodes[i]]).magnitude;
-                        }
-                    }
-                    int segments = Mathf.FloorToInt(length / 100f) + 1;
-                    float averageLength = length / (float)segments;
-                    if (segments <= 1) {
-                        continue;
-                    }
-                    length = 0;
-                    var splits = new List<int>();
-                    if (way.nodes.Count() > 2) {
-                        for (var i = 0; i < way.nodes.Count() - 1; i += 1) {
-                            length += (nodes[way.nodes[i + 1]] - nodes[way.nodes[i]]).magnitude;
-                            if (length > averageLength && i != way.nodes.Count - 2) {
-                                splits.Add(i + 1);
-                                length = 0;
-                            }
-                        }
-                    }
-                    if (splits.Any()) {
-                        allSplits.Add(way, splits);
+            foreach (Way way in this.allWays) {
+                float length = 0f;
+                if (way.nodes.Count() > 1) {
+                    for (var i = 0; i < way.nodes.Count() - 1; i += 1) {
+                        length += (nodes[way.nodes[i + 1]] - nodes[way.nodes[i]]).magnitude;
                     }
                 }
-
-                foreach (var waySplits in allSplits) {
-                    SplitWay(waySplits.Key, rt.Key, waySplits.Value);
+                int segments = Mathf.FloorToInt(length / 100f) + 1;
+                float averageLength = length / (float)segments;
+                if (segments <= 1) {
+                    continue;
                 }
+                length = 0;
+                var splits = new List<int>();
+                if (way.nodes.Count() > 1) {
+                    for (var i = 0; i < way.nodes.Count() - 1; i += 1) {
+                        length += (nodes[way.nodes[i + 1]] - nodes[way.nodes[i]]).magnitude;
+                        if (length > averageLength && i != way.nodes.Count - 2) {
+                            splits.Add(i + 1);
+                            length = 0;
+                        }
+                    }
+                }
+                if (splits.Any()) {
+                    allSplits.Add(way, splits);
+                }
+            }
+            
+            foreach (var waySplits in allSplits) {
+                SplitWay(waySplits.Key, waySplits.Value);
             }
         }
 
-
-        private void SplitWay(Way way, OSMRoadTypes rt, List<int> splits)
+        private void SplitWay(Way way, List<int> splits)
         {
-            /*splits = splits.OrderBy(c => c).ToList();
-            var index = ways[rt].Find(way);
-            if (way.nodes.Count > 1) {
-                for (var i = 0; i < splits.Count(); i += 1) {
-                    var nextIndex = way.nodes.Count() - 1;
-                    if (i != splits.Count - 1) {
-                        nextIndex = splits[i + 1];
+            if (splits.Count > 0) {
+                splits.Sort();
+                int index = this.allWays.IndexOf(way);
+                if (way.nodes.Count > 1) {
+                    for (int i = 0; i < splits.Count(); i++) {
+                        var nextIndex = way.nodes.Count() - 1;
+                        if (i != splits.Count - 1) {
+                            nextIndex = splits[i + 1];
+                        }
+                        var newWay = new Way(way.nodes.GetRange(splits[i], 1 + nextIndex - splits[i]), way.roadType, way.osmRoadType, way.layer, way.name);
+                        ways[way.osmRoadType].AddLast(newWay);
+                        allWays.Add(newWay);
                     }
-                    var newWay = new Way(way.nodes.GetRange(splits[i], 1 + nextIndex - splits[i]), way.roadTypes, way.layer, way.name);
-                    ways[rt].AddAfter(index, newWay);
+                    way.nodes.RemoveRange(splits[0] + 1, way.nodes.Count() - splits[0] - 1);
                 }
-                way.nodes.RemoveRange(splits[0] + 1, way.nodes.Count() - splits[0] - 1);
-            }*/
+            }
         }
 
 
