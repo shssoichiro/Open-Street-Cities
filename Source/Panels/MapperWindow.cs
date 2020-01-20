@@ -63,9 +63,12 @@ namespace Mapper
 
         const int maxNodes = 32767;
 
-        Color COLOR_WARNING = new Color(.9f, .8f, 0);
-        Color COLOR_ERROR = new Color(1f, .05f, .05f);
-        Color COLOR_SUCCESS = new Color(.4f, .8f, .1f);
+        Color COLOR_WARNING = new Color(.9f, .6f, .02f);
+        Color COLOR_ERROR = new Color(1f, .25f, 0);
+        Color COLOR_SUCCESS = new Color(.3f, .8f, .1f);
+
+        Color COLOR_TEXT = Color.white;
+        Color COLOR_DISABLED = Color.gray;
 
         public override void Awake()
         {
@@ -121,7 +124,7 @@ namespace Mapper
 
         public void SetupControls()
         {
-            title.text = "OpenStreetMap Import - Create roads from OSM file";
+            title.text = "OpenStreetMap Import 0.1b - Create roads from OSM file";
             title.relativePosition = new Vector3(15, 15);
             title.textScale = 0.9f;
             title.size = new Vector2(200, 30);
@@ -134,7 +137,7 @@ namespace Mapper
             y += vertPadding;
             
             SetLabel(toleranceLabel, "Tolerance", x, y);
-            SetTextBox(toleranceInput, "0.5", x + 120, y);
+            SetTextBox(toleranceInput, "5", x + 120, y);
             y += vertPadding;
 
             SetLabel(curveToleranceLabel, "Curve Tolerance", x, y);
@@ -151,7 +154,7 @@ namespace Mapper
             y += 20;
             SetLabel(tilesHintLabel, "e.g. \"2.5\" for 5x5=25 tiles; \"4.5\" for 9x9=81 tiles", x + 125, y);
             tilesHintLabel.textScale = .6f;
-            tilesHintLabel.textColor = Color.gray;
+            tilesHintLabel.textColor = COLOR_DISABLED;
 
             y += 20;
             
@@ -227,13 +230,15 @@ namespace Mapper
                 if (!File.Exists(path))
                 {
                     errorLabel.text = "Cannot find osm file: " + path;
+                    errorLabel.textColor = COLOR_ERROR;
                     return;
                 }
             }
             try
             {
                 errorLabel.text = "Loading OSM file ...";
-                
+                errorLabel.textColor = COLOR_TEXT;
+
                 this.osm = new OSMInterface(pathInput.text.Trim(), double.Parse(toleranceInput.text.Trim()), double.Parse(curveToleranceInput.text.Trim()), double.Parse(tilesInput.text.Trim()), double.Parse(scaleInput.text.Trim()));
                 currentIndex = 0;
                 currentRoadTypeIndex = 0;
@@ -243,7 +248,8 @@ namespace Mapper
                     totalCount += rt.Value.Count;
                 }
                 errorLabel.text = "OSM file loaded: " + totalCount + " roads (" + osm.ways.Count.ToString() + " types) found.";
-
+                errorLabel.textColor = COLOR_SUCCESS;
+                makeErrorLabel.text = "";
                 roadMaker = new RoadMaker2(this.osm);
                 
                 int y = roadCheckBoxStartY;
@@ -303,28 +309,29 @@ namespace Mapper
             catch (Exception ex)
             {
                 errorLabel.text = ex.ToString();
+                errorLabel.textColor = COLOR_ERROR;
             }
         }
         private void disableButton(UIButton btn) {
             btn.isEnabled = false;
-            btn.textColor = Color.gray;
+            btn.textColor = COLOR_DISABLED;
             btn.normalBgSprite = "ButtonMenuDisabled";
             btn.opacity = .333f; 
         }
         private void enableButton(UIButton btn) {
             btn.isEnabled = true;
-            btn.textColor = Color.white;
+            btn.textColor = COLOR_TEXT;
             btn.normalBgSprite = "ButtonMenu";
             btn.opacity = 1f;
         }
 
         private void disableInput(UITextField input) {
             input.readOnly = true;
-            input.textColor = Color.gray;
+            input.textColor = COLOR_DISABLED;
         }
         private void enableInput(UITextField input) {
             input.readOnly = false;
-            input.textColor = Color.white;
+            input.textColor = COLOR_TEXT;
         }
 
         private void disableOSMImportFields() {
@@ -386,7 +393,7 @@ namespace Mapper
         {
             Boolean isChecked = start_on;
             check.relativePosition = new Vector3(x, y);
-            check.color = Color.white;
+            check.color = COLOR_TEXT;
             check.size = new Vector2(13, 13);
             check.text = (isChecked ? CHECKBOX_CHECKED : CHECKBOX_UNCHECKED);
             check.Show();
@@ -424,7 +431,7 @@ namespace Mapper
             } else if(totalNodeCount > maxNodes * .9f) {
                 totalRoadLabel.textColor = COLOR_WARNING;
             } else {
-                totalRoadLabel.textColor = Color.white;
+                totalRoadLabel.textColor = COLOR_TEXT;
             }
             
             if (buildNodeCount > 0) {
@@ -498,7 +505,7 @@ namespace Mapper
                     currentIndex = 0;
                     currentRoadTypeIndex = 0;
                     makeErrorLabel.text = "Create roads ... ";
-                    makeErrorLabel.textColor = Color.white;
+                    makeErrorLabel.textColor = COLOR_TEXT;
 
                 } else {
                     // stopped 
@@ -548,8 +555,8 @@ namespace Mapper
 
         private void setCheckboxBuilt(UILabel chk, UILabel lbl) {
             chk.SimulateClick();
-            lbl.textColor = Color.gray;
-            chk.textColor = Color.gray;
+            lbl.textColor = COLOR_DISABLED;
+            chk.textColor = COLOR_DISABLED;
         }
         
         public override void Update()

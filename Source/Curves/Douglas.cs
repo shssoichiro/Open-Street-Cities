@@ -16,37 +16,31 @@ namespace Mapper.Curves
             /// <param name="Points">The points.</param>
             /// <param name="Tolerance">The tolerance.</param>
             /// <returns></returns>
-            public static List<Vector2> DouglasPeuckerReduction(List<Vector2> Points, Double Tolerance)
-            {
+            public static List<Vector2> DouglasPeuckerReduction(List<Vector2> Points, Double Tolerance) {
                 if (Points == null || Points.Count < 3)
                     return Points;
 
                 int firstPoint = 0;
                 int lastPoint = Points.Count - 1;
-            List<int> pointIndexsToKeep = new List<int>
-            {
+                List<int> pointIndexesToKeep = new List<int> {
+                    //Add the first and last index to the keepers
+                    firstPoint,
+                    lastPoint
+                };
 
-                //Add the first and last index to the keepers
-                firstPoint,
-                lastPoint
-            };
-
-            //The first and the last point cannot be the same
-            while (Points[firstPoint].Equals(Points[lastPoint]))
-                {
+                //The first and the last point cannot be the same
+                while (Points[firstPoint].Equals(Points[lastPoint])) {
                     lastPoint--;
-                    if (lastPoint <= firstPoint)
-                    {
+                    if (lastPoint <= firstPoint) {
                         return null;
                     }
                 }
 
-                DouglasPeuckerReduction(Points, firstPoint, lastPoint,Tolerance, ref pointIndexsToKeep);
+                DouglasPeuckerReduction(Points, firstPoint, lastPoint, Tolerance, ref pointIndexesToKeep);
 
                 List<Vector2> returnPoints = new List<Vector2>();
-                pointIndexsToKeep.Sort();
-                foreach (Int32 index in pointIndexsToKeep)
-                {
+                pointIndexesToKeep.Sort();
+                foreach (Int32 index in pointIndexesToKeep) {
                     returnPoints.Add(Points[index]);
                 }
 
@@ -61,16 +55,13 @@ namespace Mapper.Curves
             /// <param name="lastPoint">The last point.</param>
             /// <param name="tolerance">The tolerance.</param>
             /// <param name="pointIndexsToKeep">The point index to keep.</param>
-            private static void DouglasPeuckerReduction(List<Vector2> points, Int32 firstPoint, Int32 lastPoint, Double tolerance, ref List<Int32> pointIndexsToKeep)
-            {
+            private static void DouglasPeuckerReduction(List<Vector2> points, Int32 firstPoint, Int32 lastPoint, Double tolerance, ref List<Int32> pointIndexesToKeep) {
                 Double maxDistance = 0;
                 Int32 indexFarthest = 0;
 
-                for (Int32 index = firstPoint; index < lastPoint; index++)
-                {
+                for (Int32 index = firstPoint; index < lastPoint; index++) {
                     Double distance = PerpendicularDistance(points[firstPoint], points[lastPoint], points[index]);
-                    if (distance > maxDistance)
-                    {
+                    if (distance > maxDistance) {
                         maxDistance = distance;
                         indexFarthest = index;
                     }
@@ -79,12 +70,12 @@ namespace Mapper.Curves
                 if (maxDistance > tolerance && indexFarthest != 0)
                 {
                     //Add the largest point that exceeds the tolerance
-                    pointIndexsToKeep.Add(indexFarthest);
+                    pointIndexesToKeep.Add(indexFarthest);
 
                     DouglasPeuckerReduction(points, firstPoint,
-                    indexFarthest, tolerance, ref pointIndexsToKeep);
+                    indexFarthest, tolerance, ref pointIndexesToKeep);
                     DouglasPeuckerReduction(points, indexFarthest,
-                    lastPoint, tolerance, ref pointIndexsToKeep);
+                    lastPoint, tolerance, ref pointIndexesToKeep);
                 }
             }
 
