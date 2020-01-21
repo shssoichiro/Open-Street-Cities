@@ -6,10 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Mapper
-{
-    public class RoadMaker2
-    {
+namespace Mapper {
+    public class RoadMaker2 {
         public OSM.OSMInterface osm;
         private Randomizer rand;
 
@@ -32,7 +30,6 @@ namespace Mapper
                         netInfos.Add((RoadTypes)Enum.Parse(typeof(RoadTypes), pp.name.Replace(" ", "")), pp);
                     }
                 }
-                
             }
         }
 

@@ -5,10 +5,8 @@ using System.Linq;
 using System.Xml.Serialization;
 using UnityEngine;
 
-namespace Mapper.OSM
-{
-    public class OSMInterface
-    {
+namespace Mapper.OSM {
+    public class OSMInterface {
         public RoadMapping mapping;
         private readonly FitCurves fc;
 
@@ -18,12 +16,11 @@ namespace Mapper.OSM
         public Dictionary<OSMRoadTypes, LinkedList<Way>> ways = new Dictionary<OSMRoadTypes, LinkedList<Way>>();
         public SortedDictionary<OSMRoadTypes, int> roadTypeCount = new SortedDictionary<OSMRoadTypes, int>();
         
-        double tolerance = .1f;
-        double curveError = .1f;
+        double tolerance = 1f;
+        double curveError = .5f;
         double scale = 1f;
 
-        public OSMInterface(string path, double tolerance, double curveTolerance, double tiles, double scale)
-        {
+        public OSMInterface(string path, double tolerance, double curveTolerance, double tiles, double scale) {
             this.tolerance = tolerance;
             this.curveError = curveTolerance;
             this.scale = scale;
@@ -39,8 +36,7 @@ namespace Mapper.OSM
             Init(osm);
         }
 
-        private void Init(osm osm)
-        {
+        private void Init(osm osm) {
             mapping.InitBoundingBox(osm.bounds, scale);
 
             // get nodes from OSM
@@ -123,18 +119,18 @@ namespace Mapper.OSM
                 }
             }
 
-            var intersection = new Dictionary<long, List<Way>>();
+            var intersections = new Dictionary<long, List<Way>>();
             var allSplits = new Dictionary<Way, List<int>>();
             
             foreach (var ww in allWays) {
                 foreach (var pp in ww.nodes) {
-                    if (!intersection.ContainsKey(pp)) {
-                        intersection.Add(pp, new List<Way>());
+                    if (!intersections.ContainsKey(pp)) {
+                        intersections.Add(pp, new List<Way>());
                     }
-                    intersection[pp].Add(ww);
+                    intersections[pp].Add(ww);
                 }
             }
-            foreach (var inter in intersection) {
+            foreach (var inter in intersections) {
                 if (inter.Value.Count > 1) {
                     foreach (var way in inter.Value) {
                         if (!allSplits.ContainsKey(way)) {
@@ -147,9 +143,37 @@ namespace Mapper.OSM
             foreach (var waySplits in allSplits) {
                 SplitWay(waySplits.Key, waySplits.Value);
             }
-            
+
             BreakWaysWhichAreTooLong();
+            MergeWaysWhichAreTooShort();
             SimplifyWays();
+
+        }
+
+        private void MergeWaysWhichAreTooShort() {
+            foreach (Way way in allWays) {
+                int lastIndex = way.nodes.Count() - 1;
+                bool removedPrev = false;
+                float accumulateDist = 0f; 
+                for (int i = lastIndex - 1; i >= 0; i--) {
+                    float dist = Vector2.SqrMagnitude(nodes[way.nodes[i]] - nodes[way.nodes[i + 1]]);
+
+                    if (removedPrev) dist += accumulateDist; 
+
+                    if (dist < 90f) {
+                        if (i == 0 && lastIndex > 1) {
+                            way.nodes.RemoveRange(1, 1);
+                        } else {
+                            way.nodes.RemoveRange(i, 1);
+                            removedPrev = true;
+                            accumulateDist = dist;
+                        }
+                    } else {
+                        accumulateDist = 0f;
+                        removedPrev = false;
+                    }
+                }
+            }
         }
 
         private void BreakWaysWhichAreTooLong() {
@@ -187,8 +211,7 @@ namespace Mapper.OSM
             }
         }
 
-        private void SplitWay(Way way, List<int> splits)
-        {
+        private void SplitWay(Way way, List<int> splits) {
             if (splits.Count > 0) {
                 splits.Sort();
                 int index = allWays.IndexOf(way);
@@ -213,10 +236,9 @@ namespace Mapper.OSM
             ways.Keys.CopyTo(rtArr, 0);
 
             foreach (var rt in rtArr) {
-                foreach (var way in ways[rt]) {
-
+                foreach (Way way in ways[rt]) {
                     var points = new List<Vector2>();
-                    foreach (var pp in way.nodes) {
+                    foreach (long pp in way.nodes) {
                         points.Add(nodes[pp]);
                     }
 
@@ -236,8 +258,5 @@ namespace Mapper.OSM
 
             }
         }
-
-
-
     }
 }
