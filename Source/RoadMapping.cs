@@ -51,6 +51,9 @@ namespace Mapper
         TrainTrackBridge,
         TrainTrackElevated,
         TrainConnectionTrack,
+        TwoLaneHighway,
+        TwoLaneHighwayBridge,
+        TwoLaneHighwayBridgeElevated,
         Highway,
         HighwayBridge,
         HighwayElevated,
@@ -383,6 +386,7 @@ namespace Mapper
                 case RoadTypes.LargeRoad:
                 case RoadTypes.LargeRoadDecorationGrass:
                 case RoadTypes.LargeRoadDecorationTrees:
+                    return RoadTypes.TwoLaneHighway;
                 case RoadTypes.Highway:
                     return RoadTypes.Highway;
                 case RoadTypes.GravelRoad:
@@ -407,6 +411,7 @@ namespace Mapper
             var lat = Deg2rad(this.middleLatLon.y);
             var radius = WGS84EarthRadius(lat);
             var pradius = radius * Math.Cos(lat);
+            // The units are approximately 1m
             scaleX = scale * GameSizeGameCoordinates / Rad2deg(GameSizeMetres / pradius);
             scaleY = scale * GameSizeGameCoordinates / Rad2deg(GameSizeMetres / radius);
 
