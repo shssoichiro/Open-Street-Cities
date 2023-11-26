@@ -1,4 +1,6 @@
-﻿namespace Mapper
+﻿using ICities;
+
+namespace Mapper
 {
     public class MapperMod : IUserMod
     {

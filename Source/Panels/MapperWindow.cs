@@ -1,8 +1,11 @@
-﻿using Mapper.OSM;
+﻿using ColossalFramework;
+using ColossalFramework.UI;
+using Mapper.OSM;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using UnityEngine;
 
 namespace Mapper
 {

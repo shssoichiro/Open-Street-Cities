@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 /* Adapted from http://stackoverflow.com/questions/5525665/smoothing-a-hand-drawn-curve */
 

@@ -8,6 +8,7 @@ namespace Mapper.Contours
 {
     using System;
     using System.Collections.Generic;
+    using UnityEngine;
 
     /// <summary>
     /// Conrec is a straightforward method of contouring some surface represented 
