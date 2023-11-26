@@ -142,7 +142,7 @@ namespace Mapper
             y += vertPadding;
 
             SetLabel(scaleLabel, "Scale Factor", x, y);
-            SetTextBox(scaleInput, "1", x + 120, y);
+            SetTextBox(scaleInput, "1.041667", x + 120, y);
             y += vertPadding;
 
             SetLabel(tilesLabel, "Tiles to Boundary", x, y);
