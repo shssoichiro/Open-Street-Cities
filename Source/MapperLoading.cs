@@ -1,7 +1,4 @@
-﻿using ColossalFramework.UI;
-using ICities;
-using System;
-using UnityEngine;
+﻿using System;
 
 namespace Mapper
 {
@@ -18,7 +15,10 @@ namespace Mapper
         public override void OnLevelLoaded(LoadMode mode)
         {
             if (mode != LoadMode.LoadGame && mode != LoadMode.NewGame && mode != LoadMode.NewMap && mode != LoadMode.LoadMap)
+            {
                 return;
+            }
+
             _mode = mode;
 
             buildingWindowGameObject = new GameObject("buildingWindowObject");
@@ -65,8 +65,9 @@ namespace Mapper
         public override void OnLevelUnloading()
         {
             if (_mode != LoadMode.LoadGame && _mode != LoadMode.NewGame && _mode != LoadMode.NewMap && _mode != LoadMode.LoadMap)
+            {
                 return;
-
+            }
 
             if (buildingWindowGameObject != null)
             {

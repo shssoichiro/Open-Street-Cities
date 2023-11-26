@@ -1,9 +1,7 @@
-﻿using ColossalFramework;
+﻿using Mapper.OSM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
-using Mapper.OSM;
 
 namespace Mapper
 {
@@ -62,7 +60,8 @@ namespace Mapper
         Dam,
     }
 
-    public enum OSMRoadTypes {
+    public enum OSMRoadTypes
+    {
         none,
         motorway,
         motorway_link,
@@ -101,9 +100,9 @@ namespace Mapper
         public const int GameSizeGameCoordinates = 1920 * 9;
         double maxBounds;
         private Dictionary<KeyValuePair<string, string>, RoadTypes> roadTypeMapping = new Dictionary<KeyValuePair<string, string>, RoadTypes>();
-        private Dictionary<RoadTypes, KeyValuePair<string, string>> reverseMapping = new Dictionary<RoadTypes,KeyValuePair<string, string>>();
+        private Dictionary<RoadTypes, KeyValuePair<string, string>> reverseMapping = new Dictionary<RoadTypes, KeyValuePair<string, string>>();
         private Dictionary<string, bool> pavedMapping = new Dictionary<string, bool>();
-        
+
         //private Vector2 startLatLon = new Vector2(float.MaxValue, float.MaxValue);
         private Vector2 middleLatLon = new Vector2(float.MinValue, float.MinValue);
         //private Vector2 endLatLon;
@@ -218,7 +217,7 @@ namespace Mapper
             //pavedMapping.Add("pebblestone", false);
             //pavedMapping.Add("salt", false);
             //pavedMapping.Add("sand", false);
-            
+
         }
 
 
@@ -243,7 +242,8 @@ namespace Mapper
                         invert = true;
                     }
                 }
-                else if(tag.k.Trim().ToLower() =="bridge"){
+                else if (tag.k.Trim().ToLower() == "bridge")
+                {
                     layer = Math.Max(layer, 1);
                 }
                 else if (tag.k.Trim().ToLower() == "layer")
@@ -252,19 +252,22 @@ namespace Mapper
                 }
                 else if (tag.k.Trim().ToLower() == "surface")
                 {
-                    surface = tag.v.Trim().ToLower();                    
+                    surface = tag.v.Trim().ToLower();
                 }
                 else
                 {
                     var kvp = new KeyValuePair<string, string>(tag.k.Trim(), tag.v.Trim());
                     if (roadTypeMapping.ContainsKey(kvp))
                     {
-                        try {
+                        try
+                        {
                             osmrt = (OSMRoadTypes)Enum.Parse(typeof(OSMRoadTypes), kvp.Value.Trim().ToLower());
-                        } catch {
+                        }
+                        catch
+                        {
                             osmrt = OSMRoadTypes.none;
                         }
-                        
+
                         rt = roadTypeMapping[kvp];
                     }
                 }
@@ -284,7 +287,7 @@ namespace Mapper
                 points = new List<long>();
                 if (invert)
                 {
-                    for (var i = way.nd.Count() - 1; i >= 0; i -=1 )
+                    for (var i = way.nd.Count() - 1; i >= 0; i -= 1)
                     {
                         points.Add(way.nd[i].@ref);
                     }
@@ -309,16 +312,17 @@ namespace Mapper
                 tags.Add(new osmWayTag { k = "bridge", v = "yes" });
                 tags.Add(new osmWayTag { k = "level", v = Mathf.FloorToInt(elevation / 12).ToString() });
             }
-            var name = netSegment.Info.name.Replace(" ","");
+            var name = netSegment.Info.name.Replace(" ", "");
             if (name.ToLower().Contains("oneway") || name.ToLower().Contains("highway"))
             {
                 tags.Add(new osmWayTag { k = "oneway", v = "yes" });
             }
             var roadType = RoadTypes.None;
-            try{                
-                roadType = (RoadTypes)Enum.Parse(typeof(RoadTypes),name);
+            try
+            {
+                roadType = (RoadTypes)Enum.Parse(typeof(RoadTypes), name);
             }
-            catch 
+            catch
             {
                 return false;
             }
@@ -334,15 +338,17 @@ namespace Mapper
         {
             if (pavedMapping.ContainsKey(surface))
             {
-                if (pavedMapping[surface]){
-                    if (rt == RoadTypes.GravelRoad){                        
+                if (pavedMapping[surface])
+                {
+                    if (rt == RoadTypes.GravelRoad)
+                    {
                         return RoadTypes.BasicRoad;
                     }
                     else if (rt == RoadTypes.PedestrianGravel)
                     {
-                        
+
                         return RoadTypes.PedestrianPavement;
-                    }                    
+                    }
                 }
                 else
                 {
@@ -372,7 +378,7 @@ namespace Mapper
                 case RoadTypes.MediumRoadDecorationGrass:
                 case RoadTypes.BasicRoadDecorationGrass:
                     return RoadTypes.OnewayRoadDecorationGrass;
-                case RoadTypes.LargeRoad:                    
+                case RoadTypes.LargeRoad:
                 case RoadTypes.LargeRoadDecorationGrass:
                 case RoadTypes.LargeRoadDecorationTrees:
                 case RoadTypes.Highway:
@@ -407,11 +413,11 @@ namespace Mapper
         public void MapCoordinates(osmNode node)
         {
             Vector2 pos = Vector2.zero;
-            GetPos(node.lon, node.lat,ref pos);
+            GetPos(node.lon, node.lat, ref pos);
         }
 
         public bool GetPos(decimal lon, decimal lat, ref Vector2 pos)
-        {            
+        {
             pos = new Vector2((float)(((float)lon - middleLatLon.x) * scaleX), (float)(((float)lat - middleLatLon.y) * scaleY));
 
             if (Math.Abs(pos.x) > maxBounds || Math.Abs(pos.y) > maxBounds)
@@ -465,7 +471,8 @@ namespace Mapper
             switch (service)
             {
                 case ItemClass.Service.Beautification:
-                    if (className.Contains("marker")){
+                    if (className.Contains("marker"))
+                    {
                         return;
                     }
                     landuse = "recreation_ground";
@@ -480,14 +487,14 @@ namespace Mapper
                     building = "commercial";
                     break;
                 case ItemClass.Service.Industrial:
-                    building = "industrial";               
+                    building = "industrial";
                     break;
                 case ItemClass.Service.Garbage:
-                    landuse = "landfill";               
+                    landuse = "landfill";
                     break;
                 case ItemClass.Service.Education:
                     amenity = "school";
-                    building = "school";               
+                    building = "school";
                     break;
                 case ItemClass.Service.Electricity:
                     tags.Add(new osmWayTag { k = "power", v = "plant" });
@@ -521,7 +528,7 @@ namespace Mapper
                     }
                     building = "train_station";
                     break;
-                case ItemClass.Service.Tourism:                    
+                case ItemClass.Service.Tourism:
                     building = "hotel";
                     break;
                 default:
@@ -537,7 +544,8 @@ namespace Mapper
                 name = Singleton<InstanceManager>.instance.GetName(id);
             }
 
-            if (landuse != ""){
+            if (landuse != "")
+            {
                 tags.Add(new osmWayTag { k = "landuse", v = landuse });
             }
             if (building != "")

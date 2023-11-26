@@ -1,22 +1,8 @@
-﻿using ICities;
-
-namespace Mapper
+﻿namespace Mapper
 {
     public class MapperMod : IUserMod
     {
-        public string Name
-        {
-            get
-            {
-                return "Open Street Cities";
-            }
-        }
-        public string Description
-        {
-            get
-            {
-                return "Import roads from Open Street Map";
-            }
-        }
+        public string Name => "Open Street Cities";
+        public string Description => "Import roads from Open Street Map";
     }
 }
