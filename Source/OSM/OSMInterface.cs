@@ -199,7 +199,7 @@ namespace Mapper.OSM
                         dist += accumulateDist;
                     }
 
-                    if (dist < 60f)
+                    if (dist < 90f)
                     {
                         if (i == 0 && lastIndex > 1)
                         {
@@ -226,15 +226,31 @@ namespace Mapper.OSM
             var allSplits = new Dictionary<Way, List<int>>();
             foreach (Way way in allWays)
             {
+                float length = 0f;
+                if (way.nodes.Count() > 1)
+                {
+                    for (var i = 0; i < way.nodes.Count() - 1; i += 1)
+                    {
+                        length += (nodes[way.nodes[i + 1]] - nodes[way.nodes[i]]).magnitude;
+                    }
+                }
+                int segments = Mathf.FloorToInt(length / 100f) + 1;
+                float averageLength = length / (float)segments;
+                if (segments <= 1)
+                {
+                    continue;
+                }
+                length = 0;
                 var splits = new List<int>();
                 if (way.nodes.Count() > 1)
                 {
                     for (var i = 0; i < way.nodes.Count() - 1; i += 1)
                     {
-                        float length = (nodes[way.nodes[i + 1]] - nodes[way.nodes[i]]).magnitude;
-                        if (length > 240f && i != way.nodes.Count - 2)
+                        length += (nodes[way.nodes[i + 1]] - nodes[way.nodes[i]]).magnitude;
+                        if (length > averageLength && i != way.nodes.Count - 2)
                         {
                             splits.Add(i + 1);
+                            length = 0;
                         }
                     }
                 }
