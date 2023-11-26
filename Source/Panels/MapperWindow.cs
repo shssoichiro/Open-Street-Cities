@@ -137,7 +137,7 @@ namespace Mapper
             y += vertPadding;
 
             SetLabel(toleranceLabel, "Tolerance", x, y);
-            SetTextBox(toleranceInput, "1", x + 120, y);
+            SetTextBox(toleranceInput, "0.5", x + 120, y);
             y += vertPadding;
 
             SetLabel(curveToleranceLabel, "Curve Tolerance", x, y);
