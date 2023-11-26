@@ -115,8 +115,8 @@ namespace Mapper
         {
             maxBounds = tiles * 1920;
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "motorway"), RoadTypes.Highway);
-            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "trunk"), RoadTypes.BasicRoad);
-            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "primary"), RoadTypes.BasicRoad);
+            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "trunk"), RoadTypes.LargeRoad);
+            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "primary"), RoadTypes.MediumRoad);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "secondary"), RoadTypes.BasicRoad);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "tertiary"), RoadTypes.BasicRoad);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "unclassified"), RoadTypes.BasicRoad);
